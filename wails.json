@@ -1,0 +1,12 @@
+{
+  "name": "kafui",
+  "outputfilename": "kafui",
+  "assetdir": "frontend/dist",
+  "wailsjsdir": "frontend/src",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "author": {
+    "name": "Lizhi",
+    "email": "lizhi2754@idss-cn.com"
+  }
+}
