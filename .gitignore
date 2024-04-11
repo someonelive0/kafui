@@ -37,3 +37,9 @@ yarn-error.log*
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+frontend/src/wailsjs
+frontend/package.json.md5
+kafcli.hist
+kafui.toml
+log/

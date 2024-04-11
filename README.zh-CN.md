@@ -2,7 +2,15 @@
 
 [English](README.md) | 简体中文
 
+Dependencies
+Wails has a number of common dependencies that are required before installation:
+
+Go 1.18+
+NPM (Node 15+)
+
 ```shell
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
 wails init -n "ProjectName" -t https://github.com/airvip/wails-vite-vue-ts.git
 ```
 
@@ -20,6 +28,12 @@ wails init -n "ProjectName" -t https://github.com/airvip/wails-vite-vue-ts.git
 目录并运行 `npm run dev`. 通过浏览器打开 http://localhost:34115 连接到你的应用。
 
 说明：类型检查已经被关闭。如果你想要进行类型检查,请使用 `npm run type-check`
+
+即，开一个终端，进入 `frontend`目录并运行 `npm run dev`. 然后再开一个终端并运行 `wails dev`，
+表示 `npm run dev`实时跟踪 `frontend/src`目录下文件变化，然后编译更新到 `frontend/dist`目录下，
+而 `wails dev`实时跟踪 `frontend/dist`目录下文件变化，不过需要在浏览器手工F5刷新页面，这样就可以做到前端的开发模式。
+避免每次更新前端源代码都执行 `wails dev`
+
 
 ## 扩展特性
 

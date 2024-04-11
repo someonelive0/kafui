@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"kafui/backend"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx      context.Context
+	myconfig *backend.Myconfig
 }
 
 // NewApp creates a new App application struct
@@ -34,4 +36,12 @@ func (a *App) shutdown(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s!", name)
+}
+
+func (a *App) GetMyconfig() *backend.Myconfig {
+	return a.myconfig
+}
+
+func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
+	return backend.SaveConfig(myconfig)
 }

@@ -4,22 +4,45 @@ go 1.21
 
 toolchain go1.21.6
 
-require github.com/wailsapp/wails/v2 v2.8.0
+require (
+	github.com/BurntSushi/toml v1.3.2
+	github.com/antonfisher/nested-logrus-formatter v1.3.1
+	github.com/desertbit/grumble v1.1.3
+	github.com/fatih/color v1.16.0
+	github.com/go-zookeeper/zk v1.0.3
+	github.com/labstack/gommon v0.4.0
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/olekukonko/tablewriter v0.0.5
+	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414
+	github.com/segmentio/kafka-go v0.4.47
+	github.com/sirupsen/logrus v1.9.3
+	github.com/wailsapp/wails/v2 v2.8.0
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/desertbit/closer/v3 v3.1.2 // indirect
+	github.com/desertbit/columnize v2.1.0+incompatible // indirect
+	github.com/desertbit/go-shlex v0.1.1 // indirect
+	github.com/desertbit/readline v1.5.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
+	github.com/jonboulle/clockwork v0.4.0 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/labstack/echo/v4 v4.10.2 // indirect
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.0 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
 	github.com/leaanthony/slicer v1.6.0 // indirect
 	github.com/leaanthony/u v1.1.0 // indirect
+	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
