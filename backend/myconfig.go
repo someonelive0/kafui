@@ -30,7 +30,7 @@ type KafkaConfig struct {
 	Brokers       []string `toml:"brokers" json:"brokers"`               // brokers = [ "localhost:9092" ]
 	SaslMechanism string   `toml:"sasl_mechanism" json:"sasl_mechanism"` // "" or "SASL_PLAINTEXT"
 	User          string   `toml:"user" json:"user"`
-	Password      string   `toml:"password" json:"-"`
+	Password      string   `toml:"password" json:"password"`
 }
 
 type ZkConfig struct {

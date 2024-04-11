@@ -180,6 +180,7 @@ onMounted(() => {
 });
 
 const refresh = () => {
+  if (myconfig.value == null) getMyconfig();
   getBrokers();
   getTopics();
   getGroups();
@@ -193,7 +194,7 @@ const getMyconfig = () => {
     connection_addr.value = item.kafka.brokers[0];
   })
   .catch(err => {
-    console.error('KafkaTool.ListTopics', err);
+    console.error('KafkaTool.getMyconfig', err);
   });
 }
 
@@ -229,7 +230,7 @@ const getTopics = () => {
   // });
 
   window.go.backend.KafkaTool.ListTopics().then(items => {
-    console.log('KafkaTool.ListTopics ', items);
+    // console.log('KafkaTool.ListTopics ', items);
     topics = items
   })
   .catch(err => {
@@ -239,7 +240,7 @@ const getTopics = () => {
 
 const getGroups = () => {
   window.go.backend.KafkaTool.ListGroups().then(items => {
-    console.log('KafkaTool.ListGroups ', items);
+    // console.log('KafkaTool.ListGroups ', items);
     groups = items
   })
   .catch(err => {
@@ -316,7 +317,15 @@ const settingCancel = () => {
   setting_dialog.value = false;
 }
 const settingSave = (item: any) => {
-  console.log(item);
+  console.log('settingSave ', item);
+  window.go.main.App.SetMyconfig(item).then(item => {
+    snacktext = 'Save setting success!';
+    snackbar.value = true;
+    getMyconfig();
+  })
+  .catch(err => {
+    console.error('KafkaTool.ListGroups', err);
+  });
   setting_dialog.value = false;
 }
 

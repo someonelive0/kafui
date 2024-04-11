@@ -28,13 +28,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadConfig failed: %s", err)
 	}
-	log.Infof("myconfig %s", myconfig.Dump())
+	log.Infof("myconfig %s, %v", myconfig.Kafka.Name, myconfig.Kafka.Brokers)
 
 	// Create an instance of the app structure
 	app := NewApp()
 	app.myconfig = myconfig
 	zktool := &backend.ZkTool{}
 	kafkatool := backend.NewKafkaTool(&myconfig.Kafka)
+	app.kafkatool = kafkatool
 
 	// Create application with options
 	err = wails.Run(&options.App{

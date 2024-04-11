@@ -26,29 +26,34 @@ func NewKafkaTool(kafkaConfig *KafkaConfig) *KafkaTool {
 	kafkatool := &KafkaTool{
 		kafkaConfig: kafkaConfig,
 	}
-	// kafkatool.Init(kafkaConfig.User, kafkaConfig.Password)
+	kafkatool.Init(kafkaConfig)
+
+	return kafkatool
+}
+
+func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
+	p.kafkaConfig = kafkaConfig
 
 	// init sasl mechanism
 	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
-		kafkatool.mechanism = &plain.Mechanism{
+		p.mechanism = &plain.Mechanism{
 			Username: kafkaConfig.User,
 			Password: kafkaConfig.Password,
 		}
 	}
 
-	kafkatool.dialer = &kafka.Dialer{
+	p.dialer = &kafka.Dialer{
 		Timeout:       10 * time.Second,
 		DualStack:     true,
-		SASLMechanism: kafkatool.mechanism,
+		SASLMechanism: p.mechanism,
 	}
 
-	kafkatool.sharedTransport = &kafka.Transport{
+	p.sharedTransport = &kafka.Transport{
 		DialTimeout: 10 * time.Second,
 		IdleTimeout: 600 * time.Second,
-		SASL:        kafkatool.mechanism,
+		SASL:        p.mechanism,
 	}
 
-	return kafkatool
 }
 
 // 列出所有broker，同时保存leader broker
