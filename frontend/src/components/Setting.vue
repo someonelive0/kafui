@@ -4,14 +4,14 @@
         <v-row dense class="d-flex align-center">
             <v-col cols="4" md="4" sm="4">Connection Name:</v-col>
             <v-col cols="8" md="8" sm="8">
-                <v-text-field required v-model="name"></v-text-field>
+                <v-text-field :rules="rules" hide-details="auto" v-model="name"></v-text-field>
             </v-col>
         </v-row>
 
         <v-row dense class="d-flex align-center">
             <v-col cols="4" md="4" sm="4">Brokers:</v-col>
             <v-col cols="8" md="8" sm="8">
-                <v-text-field v-model="brokers" hint="Example: broker1:9092,broker2:9092"></v-text-field>
+                <v-text-field :rules="rules" hide-details="auto" v-model="brokers" hint="Example: broker1:9092,broker2:9092"></v-text-field>
             </v-col>
         </v-row>
 
@@ -39,16 +39,29 @@
         <v-divider></v-divider>
 
         <v-card-actions>
+            <v-btn color="secondary" text="Test Connction" variant="tonal" @click="test"></v-btn>
             <v-spacer></v-spacer>
             <v-btn text="Close" variant="plain" @click="cancel"></v-btn>
             <v-btn color="primary" text="Save" variant="tonal" @click="save"></v-btn>
         </v-card-actions>
     </v-card>
+
+    <v-snackbar v-model="snackbar" timeout=4000 color="deep-purple-accent-4" elevation="24">
+        {{ snacktext }}
+        <template v-slot:actions>
+        <v-btn color="pink" variant="text" @click="snackbar = false" >Close</v-btn>
+        </template>
+    </v-snackbar>
 </template>
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue"
 
+
+const rules = [
+    value => !!value || 'Required.',
+    value => (value && value.length >= 3) || 'Min 3 characters',
+];
 
 const { myconfig } = defineProps(['myconfig']); // 可以简写 解构
 console.log('setting... ', myconfig);
@@ -60,6 +73,8 @@ let brokers = ref('');
 let sasl_mechanism = ref('None');
 let user = ref('');
 let password = ref('');
+let snackbar = ref(false);
+let snacktext = '';
 
 name.value = myconfig.kafka.name;
 for (var i=0; i<myconfig.kafka.brokers.length; i++) {
@@ -74,7 +89,24 @@ const cancel = () => {
     emit("settingCancel")
 }
 
+const valid = () => {
+    name.value = name.value.trim()
+    brokers.value = brokers.value.trim()
+    if (name.value.length == 0) {
+        snacktext = 'name con not be empty';
+        snackbar.value = true;
+        return false;
+    }
+    if (brokers.value.length == 0) {
+        snacktext = 'brokers con not be empty';
+        snackbar.value = true;
+        return false;
+    }
+    return true
+}
+
 const save = () => {
+    if (!valid()) return;
     const tmpconfig = {
         title: myconfig.title,
         license: myconfig.license,
@@ -88,6 +120,27 @@ const save = () => {
         zookeeper: myconfig.zookeeper,
     }
     emit("settingSave", tmpconfig)
+}
+
+const test = () => {
+    snackbar.value = false;
+    if (!valid()) return;
+
+    const kafka = {
+        name: name.value,
+        brokers: brokers.value.split(','),
+        sasl_mechanism: sasl_mechanism.value == 'None' ? '' : sasl_mechanism.value,
+        user: user.value,
+        password: password.value,
+    }
+    window.go.main.App.TestKafka(kafka).then(item => {
+    snacktext = 'Test connection success!';
+    snackbar.value = true;
+  })
+  .catch(err => {
+    snacktext = 'Test connection faile: ' + err;
+    snackbar.value = true;
+  });
 }
 
 </script>

@@ -59,3 +59,7 @@ func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
 	}
 	return backend.SaveConfig(myconfig, a.myconfig.Filename)
 }
+
+func (a *App) TestKafka(kafkaConfig *backend.KafkaConfig) error {
+	return backend.TestKafa(kafkaConfig)
+}

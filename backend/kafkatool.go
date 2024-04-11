@@ -293,3 +293,28 @@ func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64,
 	first, last, err := conn.ReadOffsets()
 	return first, last, err
 }
+
+// static functions
+func TestKafa(kafkaConfig *KafkaConfig) error {
+	var mechanism sasl.Mechanism = nil
+	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+		mechanism = &plain.Mechanism{
+			Username: kafkaConfig.User,
+			Password: kafkaConfig.Password,
+		}
+	}
+
+	dialer := &kafka.Dialer{
+		Timeout:       10 * time.Second,
+		DualStack:     true,
+		SASLMechanism: mechanism,
+	}
+
+	conn, err := dialer.DialContext(context.Background(), "tcp", kafkaConfig.Brokers[0])
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	return nil
+}
