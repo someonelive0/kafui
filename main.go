@@ -24,7 +24,7 @@ func init() {
 
 func main() {
 	// Load config
-	myconfig, err := backend.LoadConfig("kafui.toml")
+	myconfig, err := backend.LoadConfig(backend.DEFAULT_CONFIG_FILE)
 	if err != nil {
 		log.Fatalf("LoadConfig failed: %s", err)
 	}

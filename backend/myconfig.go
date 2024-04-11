@@ -12,10 +12,6 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-const (
-	PASSWORD_PREFIX = "BASE64$"
-)
-
 // base on kafui.toml
 type Myconfig struct {
 	Filename  string      `toml:"-" json:"-"`
@@ -38,6 +34,16 @@ type ZkConfig struct {
 }
 
 func LoadConfig(filename string) (*Myconfig, error) {
+	// check filename is exists
+	if _, err := os.Stat(filename); err != nil {
+		fp, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return nil, err
+		}
+		defer fp.Close()
+		fp.WriteString(CONFIG_FILE_TEMPLATE)
+	}
+
 	myconfig := &Myconfig{Filename: filename}
 	if _, err := toml.DecodeFile(filename, myconfig); err != nil {
 		return nil, err
@@ -96,3 +102,28 @@ func (p *Myconfig) Dump() []byte {
 	b, _ := json.MarshalIndent(p, "", "  ")
 	return b
 }
+
+const (
+	DEFAULT_CONFIG_FILE  = "kafui.toml"
+	PASSWORD_PREFIX      = "BASE64$"
+	CONFIG_FILE_TEMPLATE = `
+# Kafui config file template
+
+
+title = "Kafui"
+license = "Copyright @ 2024"
+	
+	
+[kafka]
+	name = "localhost"
+	brokers = [ "127.0.0.1:9092" ]
+	# sasl mechanism should be empty or "SASL_PLAINTEXT",
+	# if mechanism is "SASL_PLAINTEXT", then set user and password
+	sasl_mechanism = ""
+	user = ""
+	password = ""
+	
+[zookeeper]
+	hosts = [ "127.0.0.1:2181" ]
+`
+)

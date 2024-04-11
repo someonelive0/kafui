@@ -1,4 +1,4 @@
-# Kafui setting file
+# Kafui config file template
 
 
 title = "Kafui"

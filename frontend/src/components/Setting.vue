@@ -68,7 +68,7 @@ for (var i=0; i<myconfig.kafka.brokers.length; i++) {
 }
 sasl_mechanism.value = myconfig.kafka.sasl_mechanism;
 user.value = myconfig.kafka.user;
-// password.value = myconfig.kafka.password; // password in undefined.
+password.value = myconfig.kafka.password; // password in undefined.
 
 const cancel = () => {
     emit("settingCancel")

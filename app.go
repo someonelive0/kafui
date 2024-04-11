@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"kafui/backend"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // App struct
@@ -42,7 +40,7 @@ func (a *App) Greet(name string) string {
 }
 
 func (a *App) GetMyconfig() *backend.Myconfig {
-	myconfig, err := backend.LoadConfig("kafui.toml")
+	myconfig, err := backend.LoadConfig(backend.DEFAULT_CONFIG_FILE)
 	if err != nil {
 		return nil
 	}
@@ -55,8 +53,7 @@ func (a *App) GetMyconfig() *backend.Myconfig {
 }
 
 func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
-	log.Infof("SetMyconfig %#v", *myconfig)
-	// myconfig.Zookeeper = a.myconfig.Zookeeper // 自动保存zookeeper的原有值
+	// log.Infof("SetMyconfig %#v", *myconfig)
 	if len(myconfig.Kafka.Password) == 0 { // 如果Password为空，自动保存password的原有值
 		myconfig.Kafka.Password = a.myconfig.Kafka.Password
 	}
