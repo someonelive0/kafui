@@ -124,12 +124,14 @@ const refresh = () => {
 
   // -1 means partition, 3 means timeout
   window.go.backend.KafkaTool.ReadMsgs(name, -1, 3).then(items => {
-    console.log('Kafkatool.ReadMsgs ', items);
+    // console.log('Kafkatool.ReadMsgs ', items);
     msgs.value = items;
     loading.value = false;
   })
   .catch(err => {
-    console.error('Kafkatool.ReadMsgs ', err);
+    // console.error('Kafkatool.ReadMsgs ', err);
+    snacktext = 'read message failed: ' + err;
+    snackbar.value = true;
     loading.value = false;
   });
 }

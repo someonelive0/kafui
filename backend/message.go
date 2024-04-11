@@ -3,11 +3,11 @@ package backend
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"time"
 
 	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
 )
 
 type Message struct {
@@ -27,7 +27,7 @@ type Header struct {
 }
 
 func NewMessageFromSegmentio(m *kafka.Message) *Message {
-	loc, _ := time.LoadLocation("Asia/Shanghai")
+
 	msg := &Message{
 		Topic:         m.Topic,
 		Partition:     m.Partition,
@@ -36,7 +36,14 @@ func NewMessageFromSegmentio(m *kafka.Message) *Message {
 		Key:           string(m.Key),
 		Value:         string(m.Value),
 		Headers:       make([]Header, 0, len(m.Headers)),
-		Time:          m.Time.In(loc).Format(time.RFC3339),
+		// Time:          m.Time.In(loc).Format(time.RFC3339),
+	}
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil { // win10 will cause this error: The device is not ready
+		// fmt.Printf("time.LoadLocation failed %s\n", err)
+		msg.Time = m.Time.Format(time.RFC3339)
+	} else {
+		msg.Time = m.Time.In(loc).Format(time.RFC3339)
 	}
 
 	for i := range m.Headers {
@@ -82,7 +89,7 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition int
 				break
 			}
 
-			fmt.Printf("FetchMessage error: %s", err)
+			log.Errorf("FetchMessage error: %s", err)
 			break
 		}
 
@@ -95,6 +102,50 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition int
 	return nil
 }
 
+// func (p *KafkaTool) ReadMsgs1(topic string, partition int, timeout int) ([]Message, error) {
+// 	rconfig := kafka.ReaderConfig{
+// 		Brokers: p.kafkaConfig.Brokers,
+// 		// GroupID:  kafkaConfig.Group, // 指定消费者组id
+// 		Topic:            topic,
+// 		Dialer:           p.dialer,
+// 		MaxBytes:         10e6, // 10MB
+// 		ReadBatchTimeout: time.Second * 5,
+// 		SessionTimeout:   time.Second * 5,
+// 	}
+// 	if partition > -1 {
+// 		rconfig.Partition = partition
+// 	}
+// 	r := kafka.NewReader(rconfig)
+// 	defer r.Close() // will cause 6 second
+
+// 	// ctx := context.Background()
+// 	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
+// 	count := 0
+// 	msgs := make([]Message, 0)
+// 	for {
+// 		m, err := r.FetchMessage(ctx)
+// 		if err != nil {
+// 			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+// 				// fmt.Printf("kafka get context canceled:%v", err)
+// 				break
+// 			}
+// 			if errors.Is(err, io.EOF) { // 当reader.Close后，进入这个分支
+// 				// fmt.Printf("kafka get eof")
+// 				break
+// 			}
+// 			// log.Errorf("FetchMessage error: %s", err)
+// 			break
+// 		}
+
+// 		// fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %d", m.Topic, m.Partition, m.Offset, string(m.Key), len(m.Value))
+// 		msg := NewMessageFromSegmentio(&m)
+// 		count++
+// 		msgs = append(msgs, *msg)
+// 	}
+
+// 	return msgs, nil
+// }
+
 func (p *KafkaTool) ReadMsgs(topic string, partition int, timeout int) ([]Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	ch := make(chan *Message, 10)
@@ -104,7 +155,7 @@ func (p *KafkaTool) ReadMsgs(topic string, partition int, timeout int) ([]Messag
 		defer cancel()
 		err := p.ReadMsgs2Ch(ctx, topic, partition, ch)
 		if err != nil {
-			fmt.Println("GetMessages", err)
+			log.Errorf("GetMessages failed: %s", err)
 			return
 		}
 	}()
