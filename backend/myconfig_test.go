@@ -11,7 +11,7 @@ func TestSetting(t *testing.T) {
 	t.Logf("myconfig: %#v", *myconfig)
 	t.Logf("myconfig: %s", myconfig.Dump())
 
-	if err = SaveConfig(myconfig); err != nil {
+	if err = SaveConfig(myconfig, myconfig.Filename); err != nil {
 		t.Fatalf("SaveConfig failed: %s", err)
 	}
 }

@@ -43,5 +43,5 @@ func (a *App) GetMyconfig() *backend.Myconfig {
 }
 
 func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
-	return backend.SaveConfig(myconfig)
+	return backend.SaveConfig(myconfig, a.myconfig.Filename)
 }

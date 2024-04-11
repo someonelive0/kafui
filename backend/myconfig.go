@@ -2,12 +2,18 @@ package backend
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
+)
+
+const (
+	PASSWORD_PREFIX = "BASE64$"
 )
 
 // base on kafui.toml
@@ -37,18 +43,32 @@ func LoadConfig(filename string) (*Myconfig, error) {
 		return nil, err
 	}
 
+	// if password begin with "BASE64$...", then decode weith base64
+	if len(myconfig.Kafka.Password) > len(PASSWORD_PREFIX) && strings.Index(myconfig.Kafka.Password, PASSWORD_PREFIX) == 0 {
+		b, err := base64.StdEncoding.DecodeString(myconfig.Kafka.Password[7:])
+		if err != nil {
+			return nil, err
+		}
+		myconfig.Kafka.Password = string(b)
+	}
+
 	return myconfig, nil
 }
 
-func SaveConfig(myconfig *Myconfig) error {
-	os.Remove(myconfig.Filename + ".tmp")
-	fp, err := os.OpenFile(myconfig.Filename+".tmp", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+// save myconfig to filename
+func SaveConfig(myconfig *Myconfig, filename string) error {
+	var tmpfile = filename + ".tmp"
+	os.Remove(tmpfile)
+	fp, err := os.OpenFile(tmpfile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer fp.Close()
 	fp.WriteString("# save by app, on " + time.Now().Format(time.RFC3339))
 	fp.WriteString("\n\n\n")
+
+	// encode password with base64
+	myconfig.Kafka.Password = PASSWORD_PREFIX + base64.StdEncoding.EncodeToString([]byte(myconfig.Kafka.Password))
 
 	buf := new(bytes.Buffer)
 	if err = toml.NewEncoder(buf).Encode(myconfig); err != nil {
@@ -66,7 +86,7 @@ func SaveConfig(myconfig *Myconfig) error {
 		return err
 	}
 
-	if err = os.Rename(myconfig.Filename+".tmp", myconfig.Filename); err != nil {
+	if err = os.Rename(tmpfile, filename); err != nil {
 		return err
 	}
 	return nil
