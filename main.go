@@ -18,8 +18,15 @@ var assets embed.FS
 
 func init() {
 	// backend.Chdir2PrgPath()
-	fmt.Println("program dir:", backend.GetPrgDir())
-	backend.InitLog("kafui.log", true)
+	prgdir, err := backend.GetPrgDir()
+	if err != nil {
+		fmt.Println("GetPrgDir faild: ", err)
+	} else {
+		fmt.Println("program dir: ", prgdir)
+	}
+	if _, err := backend.InitLog("kafui.log", true); err != nil {
+		fmt.Println("InitLog failed ", err)
+	}
 }
 
 func main() {

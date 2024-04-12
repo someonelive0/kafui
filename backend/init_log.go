@@ -13,7 +13,7 @@ import (
 	// logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
 )
 
-func InitLog(prgname string, isdebug bool) *logrus.Entry {
+func InitLog(prgname string, isdebug bool) (*logrus.Entry, error) {
 	logrus.SetFormatter(&nested_formatter.Formatter{
 		HideKeys:        true,
 		TimestampFormat: "2006-01-02 15:04:05", //TimestampFormat: time.RFC3339,
@@ -41,7 +41,7 @@ func InitLog(prgname string, isdebug bool) *logrus.Entry {
 	)
 	if err != nil {
 		logrus.Errorf("failed to create rotatelogs: %s", err)
-		return nil
+		return nil, err
 	}
 	logrus.SetOutput(io.MultiWriter(os.Stdout, logf))
 	//logrus.SetOutput(os.Stdout)
@@ -58,22 +58,34 @@ func InitLog(prgname string, isdebug bool) *logrus.Entry {
 		//"version": "3.0",
 		//"model": prgname,
 	})
-	return programlog
+	return programlog, nil
 }
 
-func GetPrgDir() string {
-	file, _ := exec.LookPath(os.Args[0])
-	path, _ := filepath.Abs(file)
+func GetPrgDir() (string, error) {
+	file, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return "", err
+	}
+	path, err := filepath.Abs(file)
+	if err != nil {
+		return "", err
+	}
 	index := strings.LastIndex(path, string(os.PathSeparator))
 	ret := path[:index]
-	return ret
+	return ret, nil
 }
 
-func Chdir2PrgPath() string {
-	file, _ := exec.LookPath(os.Args[0])
-	path, _ := filepath.Abs(file)
+func Chdir2PrgPath() (string, error) {
+	file, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return "", err
+	}
+	path, err := filepath.Abs(file)
+	if err != nil {
+		return "", err
+	}
 	index := strings.LastIndex(path, string(os.PathSeparator))
 	ret := path[:index]
 	os.Chdir(ret)
-	return ret
+	return ret, nil
 }
