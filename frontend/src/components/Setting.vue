@@ -109,7 +109,7 @@ const valid = () => {
 
 const save = () => {
     if (!valid()) return;
-    const tmpconfig = {
+    const tmpconfig  = { // backend.Myconfig
         title: myconfig.title,
         license: myconfig.license,
         kafka: {

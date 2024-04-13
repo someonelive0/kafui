@@ -153,23 +153,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
 import { useRouter, useRoute } from 'vue-router';
 import Setting from './components/Setting.vue'
 import About from './components/About.vue'
+import { backend } from "./wailsjs/go/models";
 
 
 const router = useRouter(); 
 const route = useRoute(); 
 const drawer = ref(true);
 const rail = ref(false);
-var brokers = ref([]);
-var topics = ref([]);
-var groups = ref([]);
+var brokers: Array<backend.Broker> = ref<backend.Broker>([]);
+var topics: Array<string> = ref([]);
+var groups: Array<string> = ref([]);
 var setting_dialog = ref(false);
 var about_dialog = ref(false);
-var myconfig = ref(null);
+var myconfig: backend.Myconfig = reactive<backend.Myconfig>(null);
 var connection_name = ref('');
 var connection_addr = ref('');
 let snackbar = ref(false);
@@ -180,20 +181,20 @@ onMounted(() => {
 });
 
 const refresh = () => {
-  if (myconfig.value == null) getMyconfig();
+  if (myconfig == null) getMyconfig();
   getBrokers();
   getTopics();
   getGroups();
 }
 
 const getMyconfig = () => {
-  window.go.main.App.GetMyconfig().then(item => {
+  window.go.main.App.GetMyconfig().then((item: backend.Myconfig) => {
     console.log('App.GetMyconfig ', item);
-    myconfig.value = item;
+    myconfig = item;
     connection_name.value = item.kafka.name;
     connection_addr.value = item.kafka.brokers[0];
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('KafkaTool.getMyconfig', err);
   });
 }
@@ -207,13 +208,13 @@ const getBrokers = () => {
   //   console.error('ZkTool.ListBrokers ', err);
   // });
 
-  window.go.backend.KafkaTool.ListBrokers().then(items => {
+  window.go.backend.KafkaTool.ListBrokers().then((items: Array<backend.Broker>) => {
     console.log('Kafkatool.ListBrokers ', items);
     brokers = items;
     snacktext = 'get brokers success!';
     snackbar.value = true;
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('Kafkatool.ListBrokers ', err);
     snacktext = 'get brokers failed: ' + err;
     snackbar.value = true;
@@ -229,21 +230,21 @@ const getTopics = () => {
   //   console.error('ZkTool.ListTopics', err);
   // });
 
-  window.go.backend.KafkaTool.ListTopics().then(items => {
+  window.go.backend.KafkaTool.ListTopics().then((items: Array<string>) => {
     // console.log('KafkaTool.ListTopics ', items);
     topics = items
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('KafkaTool.ListTopics', err);
   });
 }
 
 const getGroups = () => {
-  window.go.backend.KafkaTool.ListGroups().then(items => {
+  window.go.backend.KafkaTool.ListGroups().then((items: Array<string>) => {
     // console.log('KafkaTool.ListGroups ', items);
     groups = items
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('KafkaTool.ListGroups', err);
   });
 }
@@ -259,7 +260,7 @@ const gotoDashboard = () => {
   });
 }
 
-const gotoBroker = (broker, i) => {
+const gotoBroker = (broker: backend.Broker, i: number) => {
   // console.log('选择 broker ', broker, i);
   router.push({
     name: 'Broker',
@@ -274,7 +275,7 @@ const gotoBrokers = () => {
   });
 }
 
-const gotoTopic = (topic: string, i) => {
+const gotoTopic = (topic: string, i: number) => {
   // console.log('选择 topic ', topic, i);
   router.push({
     name: 'Topic',
@@ -292,7 +293,7 @@ const gotoTopics = () => {
   });
 }
 
-const gotoGroup = (group: string, i) => {
+const gotoGroup = (group: string, i: number) => {
   // console.log('选择 group ', group, i);
   router.push({
     name: 'Group',
@@ -316,14 +317,14 @@ const setting = () => {
 const settingCancel = () => {
   setting_dialog.value = false;
 }
-const settingSave = (item: any) => {
+const settingSave = (item: backend.Myconfig) => {
   console.log('settingSave ', item);
-  window.go.main.App.SetMyconfig(item).then(item => {
+  window.go.main.App.SetMyconfig(item).then(() => {
     snacktext = 'Save setting success!';
     snackbar.value = true;
     getMyconfig();
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('KafkaTool.ListGroups', err);
   });
   setting_dialog.value = false;

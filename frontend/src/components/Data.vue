@@ -86,12 +86,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue"
+import { ref, reactive, defineProps } from "vue"
 import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { backend } from "../wailsjs/go/models";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
-let msgs: Array<object> = ref([]);
+let msgs: Array<backend.Message> = reactive([]);
 let loading = ref(true);
 let search = ref('');
 let newDialog = ref(false);
@@ -117,18 +118,18 @@ onMounted(() => {
 })
 
 const refresh = () => {
-  // if (msgs.value) {
-  //   msgs.value.splice(0);
+  // if (msgs) {
+  //   msgs.splice(0);
   // }
   loading.value = true; // why not work?
 
   // -1 means partition, 3 means timeout
-  window.go.backend.KafkaTool.ReadMsgs(name, -1, 3).then(items => {
+  window.go.backend.KafkaTool.ReadMsgs(name, -1, 3).then((items: Array<backend.Message>) => {
     // console.log('Kafkatool.ReadMsgs ', items);
-    msgs.value = items;
+    msgs = items;
     loading.value = false;
   })
-  .catch(err => {
+  .catch((err: string) => {
     // console.error('Kafkatool.ReadMsgs ', err);
     snacktext = 'read message failed: ' + err;
     snackbar.value = true;
@@ -150,21 +151,21 @@ const writeMsg = () => {
     return;
   }
 
-  window.go.backend.KafkaTool.WriteMsg(name, msgkey.value, msgvalue.value).then(items => {
+  window.go.backend.KafkaTool.WriteMsg(name, msgkey.value, msgvalue.value).then(() => {
     snacktext = 'write message success!';
     snackbar.value = true;
     newDialog.value = false;
     refresh();
   })
-  .catch(err => {
+  .catch((err: string) => {
     // console.error('Kafkatool.WriteMsg ', err);
     snacktext = 'write message failed: ' + err;
     snackbar.value = true;
   });
 }
 
-const rowClicked = (row) => {
-  console.log('rowClicked ', typeof row.time);
+const rowClicked = (row: backend.Message) => {
+  console.log('rowClicked ', row.time, row.offset);
 }
 
 </script>

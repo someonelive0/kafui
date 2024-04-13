@@ -94,7 +94,7 @@ onMounted(() => {
   
   // console.log(title, name);
   getConf(name).then((items: Array<backend.ConfigEntry>) => {
-    console.log('Kafkatool.getConf ', title, items);
+    // console.log('Kafkatool.getConf ', title, items);
     configs = items;
     loading.value = false;
   })
