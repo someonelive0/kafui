@@ -56,11 +56,13 @@
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue"
+import { backend } from "../wailsjs/go/models";
+import { TestKafka } from "../wailsjs/go/main/App";
 
 
 const rules = [
-    value => !!value || 'Required.',
-    value => (value && value.length >= 3) || 'Min 3 characters',
+    (value: string) => !!value || 'Required.',
+    (value: string) => (value && value.length >= 3) || 'Min 3 characters',
 ];
 
 const { myconfig } = defineProps(['myconfig']); // 可以简写 解构
@@ -133,11 +135,12 @@ const test = () => {
         user: user.value,
         password: password.value,
     }
-    window.go.main.App.TestKafka(kafka).then(item => {
-    snacktext = 'Test connection success!';
+
+    TestKafka(kafka).then((leader: backend.Broker) => { // window.go.main.App.TestKafka
+    snacktext = 'Test connection success! Leader is ' + leader.host + ':' + leader.port;
     snackbar.value = true;
   })
-  .catch(err => {
+  .catch((err: string) => {
     snacktext = 'Test connection faile: ' + err;
     snackbar.value = true;
   });

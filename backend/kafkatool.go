@@ -295,7 +295,7 @@ func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64,
 }
 
 // static functions
-func TestKafa(kafkaConfig *KafkaConfig) error {
+func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 	var mechanism sasl.Mechanism = nil
 	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
 		mechanism = &plain.Mechanism{
@@ -312,9 +312,16 @@ func TestKafa(kafkaConfig *KafkaConfig) error {
 
 	conn, err := dialer.DialContext(context.Background(), "tcp", kafkaConfig.Brokers[0])
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer conn.Close()
 
-	return nil
+	controller, err := conn.Controller()
+	if err != nil {
+		return nil, err
+	}
+	// log.Infof("leader: %#v\n", controller)
+	leader := NewBrokerFromSegmentio(&controller)
+
+	return leader, err
 }

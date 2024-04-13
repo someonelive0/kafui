@@ -40,12 +40,20 @@
     </template>
     </v-data-table>
   </v-card>
+
+  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-accent-4" elevation="24">
+    {{ snacktext }}
+    <template v-slot:actions>
+      <v-btn color="pink" variant="text" @click="snackbar = false">Close</v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue"
+import { ref, reactive, defineProps } from "vue"
 import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { backend } from "../wailsjs/go/models";
 
 
 // 调用defineProps方法并获取父组件传递的数据
@@ -62,15 +70,12 @@ const headers: Array<object> = [
   { title: 'is_default', align: 'end', key: 'is_default' },
   { title: 'is_sensitive', align: 'end', key: 'is_sensitive' },
 ];
-let configs: Array<object> = ref([
-  {
-    config_name: 'waiting...',
-    config_value: '',
-  }
-]);
-let loading = true;
+let configs: Array<backend.ConfigEntry> = reactive([]);
+let loading = ref(true);
 let search = ref('');
 const sortBy = [{ key: 'config_name', order: 'asc' }];
+let snackbar = ref(false);
+let snacktext = '';
 
 onMounted(() => {
   let getConf = null;
@@ -88,23 +93,26 @@ onMounted(() => {
   }
   
   // console.log(title, name);
-  getConf(name).then(items => {
-    // console.log('Kafkatool.GetTopicConfig ', items);
-    configs.value = items;
+  getConf(name).then((items: Array<backend.ConfigEntry>) => {
+    console.log('Kafkatool.getConf ', title, items);
+    configs = items;
+    loading.value = false;
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('Kafkatool.GetTopicConfig ', err);
+    snacktext = 'get configs of ' + name + ' failed: ' + err;
+    snackbar.value = true;
+    loading.value = false;
   });
-  loading = false;
 })
 
 let selectedRowName = 'compression.type';
-const rowClicked = (row) => {
+const rowClicked = (row: backend.ConfigEntry) => {
   console.log("Clicked item: ", row.config_name)
   selectedRowName = row.config_name;
 }
 
-const getRowClass = (row) => {
+const getRowClass = (row: backend.ConfigEntry) => {
   // console.log("getRowClass: ", row.config_name)
   // if (selectedRowName == row.config_name) {
   if (row.readonly === false) {

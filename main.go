@@ -43,6 +43,7 @@ func main() {
 	zktool := &backend.ZkTool{}
 	kafkatool := backend.NewKafkaTool(&myconfig.Kafka)
 	app.kafkatool = kafkatool
+	app.zktool = zktool
 
 	// Create application with options
 	err = wails.Run(&options.App{

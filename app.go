@@ -11,6 +11,7 @@ type App struct {
 	ctx       context.Context
 	myconfig  *backend.Myconfig
 	kafkatool *backend.KafkaTool
+	zktool    *backend.ZkTool
 }
 
 // NewApp creates a new App application struct
@@ -60,6 +61,6 @@ func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
 	return backend.SaveConfig(myconfig, a.myconfig.Filename)
 }
 
-func (a *App) TestKafka(kafkaConfig *backend.KafkaConfig) error {
+func (a *App) TestKafka(kafkaConfig *backend.KafkaConfig) (*backend.Broker, error) {
 	return backend.TestKafa(kafkaConfig)
 }
