@@ -49,18 +49,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue"
+import { ref, reactive, defineProps } from "vue"
 import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { backend } from "../wailsjs/go/models";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
 let number = ref(0);
-let partitions: Array<object> = ref([]);
+let partitions: Array<backend.Partition> = ref([]);
 let loading = true;
 
 onMounted(() => {
-  window.go.backend.KafkaTool.GetTopicPartition(name).then(items => {
-    // console.log('Kafkatool.GetTopicPartition ', items);
+  window.go.backend.KafkaTool.GetTopicPartition(name).then((items: Array<backend.Partition>) => {
+    console.log('Kafkatool.GetTopicPartition ', items);
     partitions.value = items;
     number.value = 0;
     var total = 0
@@ -69,13 +70,13 @@ onMounted(() => {
     }
     number.value = total;
   })
-  .catch(err => {
+  .catch((err: string) => {
     console.error('Kafkatool.GetTopicPartition ', err);
   });
   loading = false;
 });
 
-const printReplicas = (replicas: Array<object>) => {
+const printReplicas = (replicas: Array<backend.Broker>): string => {
   var s = '';
   for (var i=0,l=replicas.length; i<l; i++) {
     if (i > 0) {

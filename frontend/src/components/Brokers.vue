@@ -67,15 +67,16 @@
 import { ref, isRef } from 'vue';
 import Config from './Config.vue'
 import { useRouter } from 'vue-router';
+import { backend } from '../wailsjs/go/models';
 
 
 // 使用 stat 传递页面参数
-let brokers = window.history.state.brokers;
+let brokers: Array<backend.Broker> = window.history.state.brokers;
 // console.log('window.history.state.broker ', brokers);
 let selectedTab = ref("Menmbers"); // 默认选中 Menmbers 页
 const router = useRouter(); 
 
-const rowClicked = (row) => {
+const rowClicked = (row: backend.Broker) => {
   // console.log("Clicked item: ", row)
   router.push({
     name: 'Broker',

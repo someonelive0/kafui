@@ -52,12 +52,12 @@ let snacktext = '';
 
 const deleteGroup = () => {
   console.log('deleteGroup ', name);
-  window.go.backend.KafkaTool.DeleteGroup(name).then(items => {
+  window.go.backend.KafkaTool.DeleteGroup(name).then(() => {
     snacktext = 'delete group ' + name + ' success!';
     snackbar.value = true;
     dialog.value = false;
   })
-  .catch(err => {
+  .catch((err: string) => {
     // console.error('Kafkatool.WriteMsg ', err);
     snacktext = 'delete group ' + name + ' failed: ' + err;
     snackbar.value = true;
