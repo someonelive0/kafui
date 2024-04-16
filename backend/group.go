@@ -113,7 +113,7 @@ func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, offset in
 		MemberID: group,
 		Topics:   make(map[string][]kafka.OffsetCommit),
 	}
-	req.Topics[topic] = []kafka.OffsetCommit{kafka.OffsetCommit{
+	req.Topics[topic] = []kafka.OffsetCommit{{
 		Partition: partition,
 		Offset:    offset,
 		Metadata:  "change committed offset",

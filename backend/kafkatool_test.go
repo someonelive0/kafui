@@ -214,3 +214,29 @@ func TestDeleteGroup(t *testing.T) {
 		t.Fatal("DeleteGroup failed ", err)
 	}
 }
+
+func TestCreateTopic(t *testing.T) {
+	myconfig, err := LoadConfig(config_fileame)
+	if err != nil {
+		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
+	}
+	kafkatool := NewKafkaTool(&myconfig.Kafka)
+
+	err = kafkatool.CreateTopic("test-topic", 1, 1)
+	if err != nil {
+		t.Fatal("CreateTopic failed ", err)
+	}
+}
+
+func TestDeleteTopic(t *testing.T) {
+	myconfig, err := LoadConfig(config_fileame)
+	if err != nil {
+		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
+	}
+	kafkatool := NewKafkaTool(&myconfig.Kafka)
+
+	err = kafkatool.DeleteTopic("test-topic")
+	if err != nil {
+		t.Fatal("CreateTopic failed ", err)
+	}
+}
