@@ -33,3 +33,16 @@ func (p *Partition) ToStrings() []string {
 func PartitionrHeader() []string {
 	return []string{"Topic", "ID", "First", "Last", "Leader"}
 }
+
+// 按照 Partition.ID 从小到大排序
+type PartitionSlice []Partition
+
+func (a PartitionSlice) Len() int { // 重写 Len() 方法
+	return len(a)
+}
+func (a PartitionSlice) Swap(i, j int) { // 重写 Swap() 方法
+	a[i], a[j] = a[j], a[i]
+}
+func (a PartitionSlice) Less(i, j int) bool { // 重写 Less() 方法， 从小到大排序
+	return a[i].ID < a[j].ID
+}

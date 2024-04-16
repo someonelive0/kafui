@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -74,6 +75,7 @@ func (p *KafkaTool) GetTopicPartition(topic string) ([]Partition, error) {
 		mypartitions = append(mypartitions, part)
 	}
 
+	sort.Sort(PartitionSlice(mypartitions))
 	return mypartitions, nil
 }
 

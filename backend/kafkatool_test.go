@@ -181,7 +181,7 @@ func TestGetTopicPartition(t *testing.T) {
 	}
 	kafkatool := NewKafkaTool(&myconfig.Kafka)
 
-	desc, err := kafkatool.GetTopicPartition("httpTopic")
+	desc, err := kafkatool.GetTopicPartition("test1")
 	if err != nil {
 		t.Fatal("GetTopicPartition failed ", err)
 	}
