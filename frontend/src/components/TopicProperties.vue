@@ -2,7 +2,7 @@
   <v-card flat>
     <v-card-title class="d-flex align-center pe-2">
       <v-icon icon="mdi-list-box-outline"></v-icon> &nbsp;
-        Topic Name: {{ name }}
+        Topic: {{ name }}
       <v-spacer></v-spacer>
         Message number: {{ number }}
       <v-spacer></v-spacer>

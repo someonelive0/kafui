@@ -82,6 +82,10 @@
           ></v-list-item>
           
         </v-list-group>
+
+        <v-list-item prepend-icon="mdi-network-outline" title="ZooKepper" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
+        @click="gotoZooKeeper" ></v-list-item>
+
       </v-list>
 
       <template v-slot:append>
@@ -257,6 +261,12 @@ const gotoDashboard = () => {
         num_topics: topics.length,
         num_groups: groups.length
     }
+  });
+}
+
+const gotoZooKeeper = () => {
+  router.push({
+    name:'ZooKeeper',
   });
 }
 

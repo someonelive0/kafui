@@ -7,6 +7,7 @@ import Topic from './components/Topic.vue'
 import Topics from './components/Topics.vue'
 import Group from './components/Group.vue'
 import Groups from './components/Groups.vue'
+import ZooKeeper from './components/ZooKeeper.vue'
 
 
 const routes = [
@@ -29,6 +30,7 @@ const routes = [
     { path: '/groups', name: 'Groups', component: Groups,
       props: true, mete: { title: 'groups' }
     },
+    { path: '/zk', name: 'ZooKeeper', component: ZooKeeper },
 ]
 
 const router = createRouter({
