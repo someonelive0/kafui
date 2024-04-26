@@ -33,6 +33,9 @@ func (a App) domReady(ctx context.Context) {
 // shutdown is called at application termination
 func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
+	if a.kafkatool != nil {
+		a.kafkatool.Close()
+	}
 }
 
 // Greet returns a greeting for the given name

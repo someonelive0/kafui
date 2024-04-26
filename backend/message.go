@@ -183,6 +183,7 @@ func (p *KafkaTool) WriteMsg(topic string, key, value string) error {
 		Async:        false,               // 同步
 		WriteTimeout: time.Second * 5,
 	}
+	defer w.Close()
 
 	err := w.WriteMessages(context.Background(),
 		kafka.Message{

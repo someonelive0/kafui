@@ -83,8 +83,8 @@
           
         </v-list-group>
 
-        <v-list-item prepend-icon="mdi-network-outline" title="ZooKepper" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
-        @click="gotoZooKeeper" ></v-list-item>
+        <!-- <v-list-item prepend-icon="mdi-network-outline" title="ZooKepper" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
+        @click="gotoZooKeeper" ></v-list-item> -->
 
       </v-list>
 

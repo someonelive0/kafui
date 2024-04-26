@@ -53,7 +53,12 @@ func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
 		IdleTimeout: 600 * time.Second,
 		SASL:        p.mechanism,
 	}
+}
 
+func (p *KafkaTool) Close() {
+	if p.sharedTransport != nil {
+		p.sharedTransport.CloseIdleConnections()
+	}
 }
 
 // 列出所有broker，同时保存leader broker
