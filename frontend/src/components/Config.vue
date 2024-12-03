@@ -73,7 +73,7 @@ const headers: Array<object> = [
 let configs: Array<backend.ConfigEntry> = reactive([]);
 let loading = ref(true);
 let search = ref('');
-const sortBy = [{ key: 'config_name', order: 'asc' }];
+const sortBy = ref([{ key: 'config_name', order: 'asc' }]);
 let snackbar = ref(false);
 let snacktext = '';
 
@@ -83,24 +83,22 @@ onMounted(() => {
     getConf = window.go.backend.KafkaTool.GetTopicConfig;
   } else if (title == 'broker') {
     getConf = window.go.backend.KafkaTool.GetBrokerConfig;
-    name = name.toString();
   } else if (title == 'cluster') {
     getConf = window.go.backend.KafkaTool.GetClusterConfig;
-    name = name.toString();
   } else {
     console.error('unknow title ', title);
     return;
   }
   
   // console.log(title, name);
-  getConf(name).then((items: Array<backend.ConfigEntry>) => {
+  getConf(name.toString()).then((items: Array<backend.ConfigEntry>) => {
     // console.log('Kafkatool.getConf ', title, items);
     configs = items;
     loading.value = false;
   })
   .catch((err: string) => {
     console.error('Kafkatool.GetTopicConfig ', err);
-    snacktext = 'get configs of ' + name + ' failed: ' + err;
+    snacktext = 'get configs of ' + name.toString() + ' failed: ' + err;
     snackbar.value = true;
     loading.value = false;
   });
