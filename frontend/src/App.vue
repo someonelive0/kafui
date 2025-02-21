@@ -17,6 +17,10 @@
           </template>
         </v-list-item>
       </v-list>
+      <v-select
+        label="Select" density="compact"
+        :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+      ></v-select>
 
       <v-divider></v-divider>
 

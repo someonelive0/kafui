@@ -12,7 +12,7 @@ func TestReadMsgs2Ch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	ch := make(chan *Message, 10)
@@ -36,7 +36,7 @@ func TestReadMsgs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	msgs, err := kafkatool.ReadMsgs("test", -1, 3)
 	if err != nil {
@@ -53,7 +53,7 @@ func TestWriteMsg(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	t0 := time.Now().Format(time.RFC3339)
 	err = kafkatool.WriteMsg("test", "key_"+t0, "value_"+t0)

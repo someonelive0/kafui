@@ -5,7 +5,7 @@ title = "Kafui"
 license = "Copyright @ 2024"
 
 
-[kafka]
+[[kafka]]
     name = "localhost"
     brokers = [ "127.0.0.1:9092" ]
     # sasl mechanism should be empty or "SASL_PLAINTEXT",

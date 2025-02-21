@@ -1,6 +1,22 @@
 <template>
     <v-card prepend-icon="mdi-cog" title="Setting" >
-      <v-card-text>
+        <v-card-text>
+        <v-row>
+            <v-col cols="3" md="3" sm="3">
+                <v-list density="compact"
+                    >
+                    <v-list-subheader>Connections</v-list-subheader>
+                    <v-list-item
+                        v-for="(item, i) in list_items"
+                        :key="i"
+                        :value="item"
+                        color="primary"
+                        rounded="xl"
+                    ></v-list-item>
+                </v-list>
+            </v-col>
+            <v-col cols="9" md="9" sm="9">
+
         <v-row dense class="d-flex align-center">
             <v-col cols="4" md="4" sm="4">Connection Name:</v-col>
             <v-col cols="8" md="8" sm="8">
@@ -34,6 +50,9 @@
         </v-row>
 
         <small class="text-caption text-medium-emphasis">*indicates required field</small>
+
+          </v-col>
+        </v-row>
       </v-card-text>
 
         <v-divider></v-divider>
@@ -70,6 +89,17 @@ console.log('setting... ', myconfig);
 // 调用defineEmits方法 并接受父组件给绑定的事件
 const emit = defineEmits(['settingCancel', 'settingSave'])
 
+let list_items = [];
+for (var i=0; i<myconfig.kafka.length; i++) {
+    // myconfig.kafka[i].text = myconfig.kafka[i].name;
+    // myconfig.kafka[i].title = myconfig.kafka[i].name;
+    list_items.push({
+        text: myconfig.kafka[i].name,
+        title: myconfig.kafka[i].name,
+    });
+};
+console.log('list_items... ', list_items);
+
 let name = ref('');
 let brokers = ref('');
 let sasl_mechanism = ref('None');
@@ -78,14 +108,14 @@ let password = ref('');
 let snackbar = ref(false);
 let snacktext = '';
 
-name.value = myconfig.kafka.name;
-for (var i=0; i<myconfig.kafka.brokers.length; i++) {
+name.value = myconfig.kafka[0].name;
+for (var i=0; i<myconfig.kafka[0].brokers.length; i++) {
     if (i>0) brokers.value += ',';
-    brokers.value += myconfig.kafka.brokers;
+    brokers.value += myconfig.kafka[0].brokers;
 }
-sasl_mechanism.value = myconfig.kafka.sasl_mechanism;
-user.value = myconfig.kafka.user;
-password.value = myconfig.kafka.password; // password in undefined.
+sasl_mechanism.value = myconfig.kafka[0].sasl_mechanism;
+user.value = myconfig.kafka[0].user;
+password.value = myconfig.kafka[0].password; // password in undefined.
 
 const cancel = () => {
     emit("settingCancel")

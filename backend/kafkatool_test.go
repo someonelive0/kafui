@@ -9,7 +9,7 @@ func TestListBrokers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	brokers, err := kafkatool.ListBrokers()
 	if err != nil {
@@ -23,7 +23,7 @@ func TestListTopics(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	topics, err := kafkatool.ListTopics()
 	if err != nil {
@@ -37,7 +37,7 @@ func TestListGroups(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	groups, err := kafkatool.ListGroups()
 	if err != nil {
@@ -51,7 +51,7 @@ func TestGetTopicMeta(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	metas, err := kafkatool.GetTopicMeta("dbTopic")
 	if err != nil {
@@ -65,7 +65,7 @@ func TestGetTopicConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	configs, err := kafkatool.GetTopicConfig("k1AssetApp")
 	if err != nil {
@@ -94,7 +94,7 @@ func TestGetBrokerConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	configs, err := kafkatool.GetBrokerConfig("1")
 	if err != nil {
@@ -108,7 +108,7 @@ func TestGetClusterConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	configs, err := kafkatool.GetClusterConfig("1")
 	if err != nil {
@@ -123,7 +123,7 @@ func TestGetClusterConfig(t *testing.T) {
 // 	if err != nil {
 // 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 // 	}
-// 	kafkatool := NewKafkaTool(&myconfig.Kafka)
+// 	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 // 	desc, err := kafkatool.GetGroupDesc("trs-app")
 // 	if err != nil {
@@ -137,7 +137,7 @@ func TestGetGroupOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	desc, err := kafkatool.GetGroupOffset("trs-app")
 	if err != nil {
@@ -151,7 +151,7 @@ func TestSetGroupOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	err = kafkatool.SetGroupOffset("kafka2nats", "httpTopic", 0, 111)
 	if err != nil {
@@ -165,7 +165,7 @@ func TestGetTopicOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	desc, err := kafkatool.GetTopicOffset("httpTopic")
 	if err != nil {
@@ -179,7 +179,7 @@ func TestGetTopicPartition(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	desc, err := kafkatool.GetTopicPartition("test1")
 	if err != nil {
@@ -193,7 +193,7 @@ func TestGetTopicPartitionOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	first, last, err := kafkatool.GetTopicPartitionOffset("httpTopic", 0)
 	if err != nil {
@@ -207,7 +207,7 @@ func TestDeleteGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	err = kafkatool.DeleteGroup("kafka2nats")
 	if err != nil {
@@ -220,7 +220,7 @@ func TestCreateTopic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	err = kafkatool.CreateTopic("test-topic", 1, 1)
 	if err != nil {
@@ -233,7 +233,7 @@ func TestDeleteTopic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.Kafka[0])
 
 	err = kafkatool.DeleteTopic("test-topic")
 	if err != nil {

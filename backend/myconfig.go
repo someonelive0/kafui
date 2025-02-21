@@ -14,11 +14,11 @@ import (
 
 // base on kafui.toml
 type Myconfig struct {
-	Filename  string      `toml:"-" json:"-"`
-	Title     string      `toml:"title" json:"title"`
-	License   string      `toml:"license" json:"license"`
-	Kafka     KafkaConfig `toml:"kafka" json:"kafka"`
-	Zookeeper ZkConfig    `toml:"zookeeper" json:"zookeeper"`
+	Filename  string        `toml:"-" json:"-"`
+	Title     string        `toml:"title" json:"title"`
+	License   string        `toml:"license" json:"license"`
+	Kafka     []KafkaConfig `toml:"kafka" json:"kafka"`
+	Zookeeper ZkConfig      `toml:"zookeeper" json:"zookeeper"`
 }
 
 type KafkaConfig struct {
@@ -49,13 +49,15 @@ func LoadConfig(filename string) (*Myconfig, error) {
 		return nil, err
 	}
 
-	// if password begin with "BASE64$...", then decode weith base64
-	if len(myconfig.Kafka.Password) > len(PASSWORD_PREFIX) && strings.Index(myconfig.Kafka.Password, PASSWORD_PREFIX) == 0 {
-		b, err := base64.StdEncoding.DecodeString(myconfig.Kafka.Password[7:])
-		if err != nil {
-			return nil, err
+	for _, kafka := range myconfig.Kafka {
+		// if password begin with "BASE64$...", then decode weith base64
+		if len(kafka.Password) > len(PASSWORD_PREFIX) && strings.Index(kafka.Password, PASSWORD_PREFIX) == 0 {
+			b, err := base64.StdEncoding.DecodeString(kafka.Password[7:])
+			if err != nil {
+				return nil, err
+			}
+			kafka.Password = string(b)
 		}
-		myconfig.Kafka.Password = string(b)
 	}
 
 	return myconfig, nil
@@ -73,8 +75,10 @@ func SaveConfig(myconfig *Myconfig, filename string) error {
 	fp.WriteString("# save by app, on " + time.Now().Format(time.RFC3339))
 	fp.WriteString("\n\n\n")
 
-	// encode password with base64
-	myconfig.Kafka.Password = PASSWORD_PREFIX + base64.StdEncoding.EncodeToString([]byte(myconfig.Kafka.Password))
+	for _, kafka := range myconfig.Kafka {
+		// encode password with base64
+		kafka.Password = PASSWORD_PREFIX + base64.StdEncoding.EncodeToString([]byte(kafka.Password))
+	}
 
 	buf := new(bytes.Buffer)
 	if err = toml.NewEncoder(buf).Encode(myconfig); err != nil {

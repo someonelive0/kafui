@@ -51,15 +51,15 @@ func (a *App) GetMyconfig() *backend.Myconfig {
 
 	// reset kafkatool with new myconfig
 	a.myconfig = myconfig
-	a.kafkatool.Init(&myconfig.Kafka)
+	a.kafkatool.Init(&myconfig.Kafka[0])
 
 	return a.myconfig
 }
 
 func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
 	// log.Infof("SetMyconfig %#v", *myconfig)
-	if len(myconfig.Kafka.Password) == 0 { // 如果Password为空，自动保存password的原有值
-		myconfig.Kafka.Password = a.myconfig.Kafka.Password
+	if len(myconfig.Kafka[0].Password) == 0 { // 如果Password为空，自动保存password的原有值
+		myconfig.Kafka[0].Password = a.myconfig.Kafka[0].Password
 	}
 	return backend.SaveConfig(myconfig, a.myconfig.Filename)
 }

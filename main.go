@@ -35,13 +35,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadConfig failed: %s", err)
 	}
-	log.Infof("myconfig %s, %v", myconfig.Kafka.Name, myconfig.Kafka.Brokers)
+	log.Infof("myconfig %s, %v", myconfig.Kafka[0].Name, myconfig.Kafka[0].Brokers)
 
 	// Create an instance of the app structure
 	app := NewApp()
 	app.myconfig = myconfig
 	zktool := &backend.ZkTool{}
-	kafkatool := backend.NewKafkaTool(&myconfig.Kafka)
+	kafkatool := backend.NewKafkaTool(&myconfig.Kafka[0])
 	app.kafkatool = kafkatool
 	app.zktool = zktool
 
