@@ -43,7 +43,7 @@ func init() {
 			go func() {
 				defer close(ch)
 				defer cancel()
-				err := kafkatool.ReadMsgs2Ch(ctx, c.Args.String("topic"), partition, ch)
+				err := kafkatool.ReadMsgs2Ch(ctx, c.Args.String("topic"), partition, -1, ch)
 				if err != nil {
 					fmt.Println("GetMessages", err)
 					return

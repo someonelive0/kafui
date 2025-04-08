@@ -58,7 +58,7 @@ func NewMessageFromSegmentio(m *kafka.Message) *Message {
 }
 
 // partition = -1 means not set partition
-func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition int, ch chan *Message) error {
+func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, limit int, ch chan *Message) error {
 	rconfig := kafka.ReaderConfig{
 		Brokers: p.kafkaConfig.Brokers,
 		// GroupID:  kafkaConfig.Group, // 指定消费者组id
@@ -77,7 +77,7 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition int
 	// ctx := context.Background()
 	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 
-	for {
+	for i := 0; limit == -1 || i < limit; i++ {
 		m, err := r.FetchMessage(ctx)
 		if err != nil {
 			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
@@ -147,13 +147,17 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition int
 // }
 
 func (p *KafkaTool) ReadMsgs(topic string, partition int, timeout int) ([]Message, error) {
+	return p.ReadMsgsLimit(topic, partition, -1, timeout)
+}
+
+func (p *KafkaTool) ReadMsgsLimit(topic string, partition, limit, timeout int) ([]Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	ch := make(chan *Message, 10)
 
 	go func() {
 		defer close(ch)
 		defer cancel()
-		err := p.ReadMsgs2Ch(ctx, topic, partition, ch)
+		err := p.ReadMsgs2Ch(ctx, topic, partition, limit, ch)
 		if err != nil {
 			log.Errorf("GetMessages failed: %s", err)
 			return
