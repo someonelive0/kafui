@@ -2,7 +2,7 @@
   <v-card flat>
     <v-card-title class="d-flex align-center pe-2">
       <v-icon icon="mdi-list-box-outline"></v-icon> &nbsp;
-      {{ name }} Messages {{ msgs.length }}
+      {{ name }} Msgs {{ msgs.length }}
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
@@ -12,7 +12,28 @@
         hide-details
         single-line
         density="compact"
-      ></v-text-field>&nbsp;
+      ><v-tooltip activator="parent" location="bottom">Match keyword</v-tooltip>
+      </v-text-field>&nbsp;
+      <v-text-field
+        v-model="partition"
+        label="Partition"
+        prepend-inner-icon="mdi-paperclip"
+        variant="outlined"
+        hide-details
+        single-line
+        density="compact"
+      ><v-tooltip activator="parent" location="bottom">Partition: 0, 1, 2...</v-tooltip>
+      </v-text-field>&nbsp;
+      <v-text-field
+        v-model="limit"
+        label="Limit"
+        prepend-inner-icon="mdi-page-last"
+        variant="outlined"
+        hide-details
+        single-line
+        density="compact"
+      ><v-tooltip activator="parent" location="bottom">Limit messages</v-tooltip>
+      </v-text-field>&nbsp;
       <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
       <v-btn icon="mdi-plus" size="small" @click="showNewDialog"></v-btn>
     </v-card-title>
@@ -95,6 +116,8 @@ const { name } = defineProps(['name']) // 可以简写 解构
 let msgs: Array<backend.Message> = reactive([]);
 let loading = ref(true);
 let search = ref('');
+let limit = ref('1000');
+let partition = ref('0');
 let newDialog = ref(false);
 let msgkey = ref('');
 let msgvalue = ref('');
@@ -123,8 +146,10 @@ const refresh = () => {
   // }
   loading.value = true; // why not work?
 
-  // -1 means partition, 3 means timeout
-  window.go.backend.KafkaTool.ReadMsgs(name, -1, 3).then((items: Array<backend.Message>) => {
+  // -1 means partition, 3 means timeout, limit means records limit
+  window.go.backend.KafkaTool.ReadMsgsLimit(name, 
+      parseInt(partition.value), parseInt(limit.value), 1)
+  .then((items: Array<backend.Message>) => {
     // console.log('Kafkatool.ReadMsgs ', items);
     msgs = items;
     loading.value = false;

@@ -20,7 +20,7 @@ func TestReadMsgs2Ch(t *testing.T) {
 		defer close(ch)
 		defer cancel()
 
-		err := kafkatool.ReadMsgs2Ch(ctx, "test", 0, ch)
+		err := kafkatool.ReadMsgs2Ch(ctx, "test", 0, -1, ch)
 		if err != nil {
 			fmt.Println("GetMessages", err)
 		}
