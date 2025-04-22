@@ -2,7 +2,6 @@ package backend
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
@@ -10,11 +9,12 @@ import (
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
 	"github.com/segmentio/kafka-go/sasl/plain"
-	log "github.com/sirupsen/logrus"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type KafkaTool struct {
-	kafkaConfig     *KafkaConfig
+	Appctx          *context.Context
+	KafkaConfig     *KafkaConfig
 	mechanism       sasl.Mechanism
 	dialer          *kafka.Dialer
 	sharedTransport *kafka.Transport
@@ -22,23 +22,23 @@ type KafkaTool struct {
 	leader Broker
 }
 
-func NewKafkaTool(kafkaConfig *KafkaConfig) *KafkaTool {
+func NewKafkaTool(KafkaConfig *KafkaConfig) *KafkaTool {
 	kafkatool := &KafkaTool{
-		kafkaConfig: kafkaConfig,
+		KafkaConfig: KafkaConfig,
 	}
-	kafkatool.Init(kafkaConfig)
+	kafkatool.Init(KafkaConfig)
 
 	return kafkatool
 }
 
-func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
-	p.kafkaConfig = kafkaConfig
+func (p *KafkaTool) Init(KafkaConfig *KafkaConfig) {
+	p.KafkaConfig = KafkaConfig
 
 	// init sasl mechanism
-	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
 		p.mechanism = &plain.Mechanism{
-			Username: kafkaConfig.User,
-			Password: kafkaConfig.Password,
+			Username: KafkaConfig.User,
+			Password: KafkaConfig.Password,
 		}
 	}
 
@@ -63,7 +63,7 @@ func (p *KafkaTool) Close() {
 
 // 列出所有broker，同时保存leader broker
 func (p *KafkaTool) ListBrokers() ([]Broker, error) {
-	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.kafkaConfig.Brokers[0])
+	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.KafkaConfig.Brokers[0])
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (p *KafkaTool) ListBrokers() ([]Broker, error) {
 		return nil, err
 	}
 	p.leader.Copy(&controller)
-	log.Infof("leader: %#v\n", p.leader)
+	runtime.LogInfof(*p.Appctx, "dial kafka leader success: %#v", p.leader)
 
 	brokers, err := conn.Brokers()
 	if err != nil {
@@ -95,9 +95,9 @@ func (p *KafkaTool) ListBrokers() ([]Broker, error) {
 }
 
 func (p *KafkaTool) ListTopics() ([]string, error) {
-	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.kafkaConfig.Brokers[0])
+	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.KafkaConfig.Brokers[0])
 	if err != nil {
-		log.Printf("DialContext failed %s", err)
+		runtime.LogErrorf(*p.Appctx, "DialContext failed %s", err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -122,32 +122,9 @@ func (p *KafkaTool) ListTopics() ([]string, error) {
 	return topics, nil
 }
 
-func (p *KafkaTool) ListGroups() ([]string, error) {
-	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
-		Transport: p.sharedTransport,
-	}
-
-	groupsreq := &kafka.ListGroupsRequest{Addr: client.Addr}
-	groupsrep, err := client.ListGroups(context.Background(), groupsreq)
-	if err != nil {
-		return nil, err
-	}
-	// b, _ := json.MarshalIndent(groupsrep, "", " ")
-	// fmt.Printf("groups: %s\n", b)
-
-	groups := make([]string, 0, len(groupsrep.Groups))
-	for i := range groupsrep.Groups {
-		groups = append(groups, groupsrep.Groups[i].GroupID)
-	}
-
-	sort.Strings(groups)
-	return groups, nil
-}
-
 func (p *KafkaTool) GetTopicMeta(topic string) ([]string, error) {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -159,8 +136,7 @@ func (p *KafkaTool) GetTopicMeta(topic string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	b, _ := json.MarshalIndent(metaresp, "", " ")
-	fmt.Printf("meta: %s\n", b)
+	runtime.LogInfof(*p.Appctx, "GetTopicMeta '%s' failed: %#v", topic, metaresp)
 
 	return nil, nil
 }
@@ -183,7 +159,7 @@ func (p *KafkaTool) GetClusterConfig(clusterid string) ([]ConfigEntry, error) {
 
 func (p *KafkaTool) GetConfig(resourceType, resourceName string) ([]ConfigEntry, error) {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -225,12 +201,12 @@ func (p *KafkaTool) GetConfig(resourceType, resourceName string) ([]ConfigEntry,
 }
 
 // static functions
-func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
+func TestKafa(KafkaConfig *KafkaConfig) (*Broker, error) {
 	var mechanism sasl.Mechanism = nil
-	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
 		mechanism = &plain.Mechanism{
-			Username: kafkaConfig.User,
-			Password: kafkaConfig.Password,
+			Username: KafkaConfig.User,
+			Password: KafkaConfig.Password,
 		}
 	}
 
@@ -240,7 +216,7 @@ func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 		SASLMechanism: mechanism,
 	}
 
-	conn, err := dialer.DialContext(context.Background(), "tcp", kafkaConfig.Brokers[0])
+	conn, err := dialer.DialContext(context.Background(), "tcp", KafkaConfig.Brokers[0])
 	if err != nil {
 		return nil, err
 	}

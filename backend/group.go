@@ -3,16 +3,41 @@ package backend
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/segmentio/kafka-go"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // kafka group of customer
 type Group struct {
 }
 
+func (p *KafkaTool) ListGroups() ([]string, error) {
+	client := &kafka.Client{
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
+		Transport: p.sharedTransport,
+	}
+
+	groupsreq := &kafka.ListGroupsRequest{Addr: client.Addr}
+	groupsrep, err := client.ListGroups(context.Background(), groupsreq)
+	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "ListGroups error: %s", err)
+		return nil, err
+	}
+	// runtime.LogInfof(*p.Appctx, "ListGroups groups: %#v", groupsrep)
+
+	groups := make([]string, 0, len(groupsrep.Groups))
+	for i := range groupsrep.Groups {
+		groups = append(groups, groupsrep.Groups[i].GroupID)
+	}
+
+	sort.Strings(groups)
+	return groups, nil
+}
+
+// ####################################################################################
 // From kafka.OffsetFetchPartition
 type GroupOffset struct {
 	Topic           string `json:"topic"`
@@ -38,7 +63,7 @@ func GroupOffsetHeader() []string {
 // 这个函数是kafka-go库有错误，不能正常返回
 func (p *KafkaTool) GetGroupDesc(group string) ([]string, error) {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -48,17 +73,18 @@ func (p *KafkaTool) GetGroupDesc(group string) ([]string, error) {
 	}
 	resp, err := client.DescribeGroups(context.Background(), req)
 	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "DescribeGroups error: %s", err)
 		return nil, err
 	}
 	b, _ := json.MarshalIndent(resp, "", " ")
-	fmt.Printf("group descript %s: %s\n", group, b)
+	runtime.LogInfof(*p.Appctx, "DescribeGroups '%s': %s\n", group, b)
 
 	return nil, nil
 }
 
 func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -68,10 +94,11 @@ func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {
 	}
 	resp, err := client.OffsetFetch(context.Background(), req)
 	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "GetGroupOffset '%s' failed: %s", group, err)
 		return nil, err
 	}
 	// b, _ := json.MarshalIndent(resp, "", " ")
-	// fmt.Printf("group offset %s: %s\n", group, b)
+	// runtime.LogInfof(*p.Appctx,"group offset %s: %s\n", group, b)
 
 	if len(resp.Topics) == 0 {
 		return nil, nil
@@ -88,6 +115,7 @@ func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {
 
 			first, last, err := p.GetTopicPartitionOffset(topic, group_offset.Partition)
 			if err != nil {
+				runtime.LogErrorf(*p.Appctx, "GetTopicPartitionOffset '%s' failed: %s", topic, err)
 				return nil, err
 			}
 			group_offset.FirstOffset = first
@@ -103,7 +131,7 @@ func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {
 // Unknown Member ID: the member id is not in the current generation, so first should GetGroupDesc success
 func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, offset int64) error {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -136,7 +164,7 @@ func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, offset in
 
 func (p *KafkaTool) DeleteGroup(group string) error {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -147,9 +175,10 @@ func (p *KafkaTool) DeleteGroup(group string) error {
 
 	resp, err := client.DeleteGroups(context.Background(), req)
 	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "DeleteGroups '%s' failed: %s", group, err)
 		return err
 	}
-	fmt.Printf("%#v", resp)
+	runtime.LogInfof(*p.Appctx, "DeleteGroups '%s': %#v", group, resp)
 
 	if err1, ok := resp.Errors[group]; ok && err1 != nil {
 		return err1

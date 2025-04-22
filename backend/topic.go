@@ -2,13 +2,11 @@ package backend
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"sort"
 	"time"
 
 	"github.com/segmentio/kafka-go"
-	log "github.com/sirupsen/logrus"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // kafka topic
@@ -18,7 +16,7 @@ import (
 // 该函数不准，通常返回-1，需要用 GetTopicPartitionOffset 函数才有正确返回
 func (p *KafkaTool) GetTopicOffset(topic string) ([]string, error) {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -34,16 +32,15 @@ func (p *KafkaTool) GetTopicOffset(topic string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	b, _ := json.MarshalIndent(resp, "", " ")
-	fmt.Printf("topic offset %s: %s\n", topic, b)
+	runtime.LogInfof(*p.Appctx, "GetTopicOffset '%s': %#v", topic, resp)
 
 	return nil, nil
 }
 
 func (p *KafkaTool) GetTopicPartition(topic string) ([]Partition, error) {
-	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.kafkaConfig.Brokers[0])
+	conn, err := p.dialer.DialContext(context.Background(), "tcp", p.KafkaConfig.Brokers[0])
 	if err != nil {
-		log.Printf("DialContext failed %s", err)
+		runtime.LogErrorf(*p.Appctx, "DialContext failed %s", err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -80,10 +77,9 @@ func (p *KafkaTool) GetTopicPartition(topic string) ([]Partition, error) {
 }
 
 func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64, int64, error) {
-	conn, err := p.dialer.DialLeader(context.Background(), "tcp", p.kafkaConfig.Brokers[0], topic, partition)
+	conn, err := p.dialer.DialLeader(context.Background(), "tcp", p.KafkaConfig.Brokers[0], topic, partition)
 	if err != nil {
-		// log.Printf("DialContext [%s] failed %s", p.mechanism.Username, err)
-		return 0, 0, err
+		runtime.LogErrorf(*p.Appctx, "DialLeader [%s] failed %s", p.KafkaConfig.Brokers[0], err)
 	}
 	defer conn.Close()
 
@@ -93,7 +89,7 @@ func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64,
 
 // Not work
 // func (p *KafkaTool) CreateTopic0(topic string, partitions, replicas int) error {
-// 	conn, err := p.dialer.Dial("tcp", p.kafkaConfig.Brokers[0])
+// 	conn, err := p.dialer.Dial("tcp", p.KafkaConfig.Brokers[0])
 // 	if err != nil {
 // 		return err
 // 	}
@@ -128,7 +124,7 @@ func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64,
 
 func (p *KafkaTool) CreateTopic(topic string, partitions, replicas int) error {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -149,6 +145,7 @@ func (p *KafkaTool) CreateTopic(topic string, partitions, replicas int) error {
 	}
 	if err, ok := resp.Errors[topic]; ok {
 		if err != nil {
+			runtime.LogErrorf(*p.Appctx, "CreateTopic [%s] failed: %s", topic, err)
 			return err
 		}
 	}
@@ -158,7 +155,7 @@ func (p *KafkaTool) CreateTopic(topic string, partitions, replicas int) error {
 
 func (p *KafkaTool) DeleteTopic(topic string) error {
 	client := &kafka.Client{
-		Addr:      kafka.TCP(p.kafkaConfig.Brokers[0]),
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
@@ -173,6 +170,7 @@ func (p *KafkaTool) DeleteTopic(topic string) error {
 	}
 	if err, ok := resp.Errors[topic]; ok {
 		if err != nil {
+			runtime.LogErrorf(*p.Appctx, "DeleteTopic [%s] failed: %s", topic, err)
 			return err
 		}
 	}

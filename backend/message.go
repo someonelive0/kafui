@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/segmentio/kafka-go"
-	log "github.com/sirupsen/logrus"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type Message struct {
@@ -60,8 +60,8 @@ func NewMessageFromSegmentio(m *kafka.Message) *Message {
 // partition = -1 means not set partition
 func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, limit int, ch chan *Message) error {
 	rconfig := kafka.ReaderConfig{
-		Brokers: p.kafkaConfig.Brokers,
-		// GroupID:  kafkaConfig.Group, // 指定消费者组id
+		Brokers: p.KafkaConfig.Brokers,
+		// GroupID:  KafkaConfig.Group, // 指定消费者组id
 		Topic:            topic,
 		Dialer:           p.dialer,
 		MaxBytes:         10e6, // 10MB
@@ -89,7 +89,7 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 				break
 			}
 
-			log.Errorf("FetchMessage error: %s", err)
+			runtime.LogErrorf(*p.Appctx, "FetchMessage error: %s", err)
 			break
 		}
 
@@ -104,8 +104,8 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 
 // func (p *KafkaTool) ReadMsgs1(topic string, partition int, timeout int) ([]Message, error) {
 // 	rconfig := kafka.ReaderConfig{
-// 		Brokers: p.kafkaConfig.Brokers,
-// 		// GroupID:  kafkaConfig.Group, // 指定消费者组id
+// 		Brokers: p.KafkaConfig.Brokers,
+// 		// GroupID:  KafkaConfig.Group, // 指定消费者组id
 // 		Topic:            topic,
 // 		Dialer:           p.dialer,
 // 		MaxBytes:         10e6, // 10MB
@@ -133,7 +133,7 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 // 				// fmt.Printf("kafka get eof")
 // 				break
 // 			}
-// 			// log.Errorf("FetchMessage error: %s", err)
+// 			// runtime.LogErrorf(*p.Appctx, "FetchMessage error: %s", err)
 // 			break
 // 		}
 
@@ -159,7 +159,7 @@ func (p *KafkaTool) ReadMsgsLimit(topic string, partition, limit, timeout int) (
 		defer cancel()
 		err := p.ReadMsgs2Ch(ctx, topic, partition, limit, ch)
 		if err != nil {
-			log.Errorf("GetMessages failed: %s", err)
+			runtime.LogErrorf(*p.Appctx, "GetMessages failed: %s", err)
 			return
 		}
 	}()
@@ -179,7 +179,7 @@ func (p *KafkaTool) ReadMsgsLimit(topic string, partition, limit, timeout int) (
 
 func (p *KafkaTool) WriteMsg(topic string, key, value string) error {
 	w := &kafka.Writer{
-		Addr:         kafka.TCP(p.kafkaConfig.Brokers...),
+		Addr:         kafka.TCP(p.KafkaConfig.Brokers...),
 		Topic:        topic,
 		Transport:    p.sharedTransport,
 		Balancer:     &kafka.LeastBytes{}, // 指定分区的balancer模式为最小字节分布
@@ -195,6 +195,7 @@ func (p *KafkaTool) WriteMsg(topic string, key, value string) error {
 			Value: []byte(value)},
 	)
 	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "WriteMsg error: %s", err)
 		return err
 	}
 

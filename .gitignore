@@ -43,3 +43,4 @@ frontend/package.json.md5
 kafcli.hist
 *.toml
 log/
+kafui.log
