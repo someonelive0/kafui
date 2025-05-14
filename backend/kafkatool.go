@@ -33,6 +33,7 @@ func NewKafkaTool(KafkaConfig *KafkaConfig) *KafkaTool {
 
 func (p *KafkaTool) Init(KafkaConfig *KafkaConfig) {
 	p.KafkaConfig = KafkaConfig
+	runtime.LogInfof(*p.Appctx, "set kafka config SaslMechanism: %#v", p.KafkaConfig.SaslMechanism)
 
 	// init sasl mechanism
 	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
@@ -40,6 +41,12 @@ func (p *KafkaTool) Init(KafkaConfig *KafkaConfig) {
 			Username: KafkaConfig.User,
 			Password: KafkaConfig.Password,
 		}
+	} else {
+		p.mechanism = nil
+	}
+
+	if p.sharedTransport != nil {
+		p.sharedTransport.CloseIdleConnections()
 	}
 
 	p.dialer = &kafka.Dialer{
