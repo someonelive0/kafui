@@ -65,6 +65,9 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 		runtime.LogErrorf(*p.Appctx, "GetTopicPartitionOffset error: %s", err)
 		return err
 	}
+	if lastOffset-firstOffet == 0 { // msg bumber is 0 menas topic is empty
+		return nil
+	}
 
 	rconfig := kafka.ReaderConfig{
 		Brokers: p.KafkaConfig.Brokers,
