@@ -33,7 +33,9 @@ func NewKafkaTool(KafkaConfig *KafkaConfig) *KafkaTool {
 
 func (p *KafkaTool) Init(KafkaConfig *KafkaConfig) {
 	p.KafkaConfig = KafkaConfig
-	runtime.LogInfof(*p.Appctx, "set kafka config SaslMechanism: %#v", p.KafkaConfig.SaslMechanism)
+	if p.Appctx != nil {
+		runtime.LogInfof(*p.Appctx, "set kafka config SaslMechanism: %#v", p.KafkaConfig.SaslMechanism)
+	}
 
 	// init sasl mechanism
 	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {

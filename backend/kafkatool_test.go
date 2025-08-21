@@ -118,19 +118,19 @@ func TestGetClusterConfig(t *testing.T) {
 }
 
 // 这个函数是kafka-go库有错误
-// func TestGetGroupDesc(t *testing.T) {
-// 	myconfig, err := LoadConfig(config_fileame)
-// 	if err != nil {
-// 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
-// 	}
-// 	kafkatool := NewKafkaTool(&myconfig.Kafka)
+func TestGetGroupDesc(t *testing.T) {
+	myconfig, err := LoadConfig(config_fileame)
+	if err != nil {
+		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
+	}
+	kafkatool := NewKafkaTool(&myconfig.Kafka)
 
-// 	desc, err := kafkatool.GetGroupDesc("trs-app")
-// 	if err != nil {
-// 		t.Fatal("GetGroupDesc failed ", err)
-// 	}
-// 	t.Logf("desc: %#v", desc)
-// }
+	desc, err := kafkatool.GetGroupDesc("idm-server-group-2")
+	if err != nil {
+		t.Fatal("GetGroupDesc failed ", err)
+	}
+	t.Logf("desc: %#v", desc)
+}
 
 func TestGetGroupOffset(t *testing.T) {
 	myconfig, err := LoadConfig(config_fileame)

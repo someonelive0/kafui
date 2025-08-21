@@ -32,7 +32,9 @@ func (p *KafkaTool) GetTopicOffset(topic string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	runtime.LogInfof(*p.Appctx, "GetTopicOffset '%s': %#v", topic, resp)
+	if p.Appctx != nil {
+		runtime.LogInfof(*p.Appctx, "GetTopicOffset '%s': %#v", topic, resp)
+	}
 
 	return nil, nil
 }

@@ -73,11 +73,15 @@ func (p *KafkaTool) GetGroupDesc(group string) ([]string, error) {
 	}
 	resp, err := client.DescribeGroups(context.Background(), req)
 	if err != nil {
-		runtime.LogErrorf(*p.Appctx, "DescribeGroups error: %s", err)
+		if p.Appctx != nil {
+			runtime.LogErrorf(*p.Appctx, "DescribeGroups error: %s", err)
+		}
 		return nil, err
 	}
 	b, _ := json.MarshalIndent(resp, "", " ")
-	runtime.LogInfof(*p.Appctx, "DescribeGroups '%s': %s\n", group, b)
+	if p.Appctx != nil {
+		runtime.LogInfof(*p.Appctx, "DescribeGroups '%s': %s\n", group, b)
+	}
 
 	return nil, nil
 }
