@@ -1,8 +1,8 @@
 module kafui
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.22.8
+toolchain go1.23.4
 
 require (
 	github.com/BurntSushi/toml v1.4.0
@@ -13,8 +13,8 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414
-	github.com/segmentio/kafka-go v0.4.47
-	github.com/wailsapp/wails/v2 v2.10.1
+	github.com/segmentio/kafka-go v0.4.48
+	github.com/wailsapp/wails/v2 v2.10.2
 )
 
 require (
@@ -31,6 +31,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
