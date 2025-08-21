@@ -32,7 +32,7 @@
         hide-details
         single-line
         density="compact"
-      ><v-tooltip activator="parent" location="bottom">Limit messages</v-tooltip>
+      ><v-tooltip activator="parent" location="bottom">Limit messages, 0 means no limit, -100 means last 100</v-tooltip>
       </v-text-field>&nbsp;
       <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
       <v-btn icon="mdi-plus" size="small" @click="showNewDialog"></v-btn>
@@ -148,7 +148,7 @@ const refresh = () => {
 
   // -1 means partition, 3 means timeout, limit means records limit
   window.go.backend.KafkaTool.ReadMsgsLimit(name, 
-      parseInt(partition.value), parseInt(limit.value), 1)
+      parseInt(partition.value), parseInt(limit.value), 8)
   .then((items: Array<backend.Message>) => {
     // console.log('Kafkatool.ReadMsgs ', items);
     msgs = items;

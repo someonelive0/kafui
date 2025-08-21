@@ -59,6 +59,13 @@ func NewMessageFromSegmentio(m *kafka.Message) *Message {
 
 // partition = -1 means not set partition
 func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, limit int, ch chan *Message) error {
+	// fire read partition first and last offset
+	firstOffet, lastOffset, err := p.GetTopicPartitionOffset(topic, partition)
+	if err != nil {
+		runtime.LogErrorf(*p.Appctx, "GetTopicPartitionOffset error: %s", err)
+		return err
+	}
+
 	rconfig := kafka.ReaderConfig{
 		Brokers: p.KafkaConfig.Brokers,
 		// GroupID:  KafkaConfig.Group, // 指定消费者组id
@@ -74,17 +81,28 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 	r := kafka.NewReader(rconfig)
 	// defer r.Close() // will cause 6 second
 
+	// set beginOffet when limit < 0
+	if limit < 0 {
+		if lastOffset+int64(limit) > firstOffet {
+			if err = r.SetOffset(lastOffset + int64(limit)); err != nil {
+				runtime.LogErrorf(*p.Appctx, "SetOffset on topic '%s %v' error: %s", topic, partition, err)
+				return nil
+			}
+		}
+		limit = -1 * limit
+	}
+
 	// ctx := context.Background()
 	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 
-	for i := 0; limit == -1 || i < limit; i++ {
+	for i := 0; limit == 0 || i < limit; i++ {
 		m, err := r.FetchMessage(ctx)
 		if err != nil {
 			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-				// fmt.Printf("kafka get context canceled:%v", err)
+				// fmt.Printf("kafka get context canceled:%v\n", err)
 				break
 			}
-			if errors.Is(err, io.EOF) { // 当reader.Close后，进入这个分支
+			if errors.Is(err, io.EOF) { // 当reader.Close后，进入这个分支, but reach lastOffset not work
 				// fmt.Printf("kafka get eof")
 				break
 			}
@@ -93,9 +111,15 @@ func (p *KafkaTool) ReadMsgs2Ch(ctx context.Context, topic string, partition, li
 			break
 		}
 
-		// fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %d", m.Topic, m.Partition, m.Offset, string(m.Key), len(m.Value))
+		// fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %d\n", m.Topic, m.Partition, m.Offset, string(m.Key), len(m.Value))
 		msg := NewMessageFromSegmentio(&m)
 		ch <- msg
+
+		// When read EOF return, that m.Offset == lastOffset-1
+		if m.Offset == lastOffset-1 {
+			// fmt.Printf("kafka get EOF and return: m.Offet = last-1: %v=%v", m.Offset, lastOffset)
+			break
+		}
 	}
 
 	go r.Close()
