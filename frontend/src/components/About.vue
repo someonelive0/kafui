@@ -18,7 +18,7 @@
         Kafui
       </template>
       <template v-slot:subtitle>
-        Versin: 0.0.2 2025-08-21
+        Versin: 0.0.3 2025-08-22
       </template>  
       <v-card-text>
         Kafui is a Kafka GUI client.

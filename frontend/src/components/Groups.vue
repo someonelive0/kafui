@@ -13,7 +13,8 @@
           hide-details
           single-line
           density="compact"
-        ></v-text-field>
+        ></v-text-field>&nbsp;
+        <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
       </v-card-title>
 
       <v-data-table density="compact"
@@ -38,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue"
+import { ref } from "vue";
 import { useRouter } from 'vue-router';
 
 
@@ -58,6 +59,22 @@ const headers: Array<object> = [
 let search = ref('');
 
 const router = useRouter(); 
+
+const refresh = () => {
+  window.go.backend.KafkaTool.ListGroups().then((items: Array<string>) => {
+    // console.log('Kafkatool.ListGroups ', items);
+    for (var i=0,len=items.length; i<len; i++) {
+      groups[i] = {name: items[i]}
+    }
+    // loading.value = false;
+  })
+  .catch((err: string) => {
+    console.error('Kafkatool.ListGroups ', err);
+    // snacktext = 'read message failed: ' + err;
+    // snackbar.value = true;
+    // loading.value = false;
+  });
+}
 
 const rowClicked = (row) => {
   // console.log("Clicked item: ", row)

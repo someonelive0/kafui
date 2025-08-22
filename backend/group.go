@@ -3,6 +3,7 @@ package backend
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -133,34 +134,64 @@ func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {
 }
 
 // Unknown Member ID: the member id is not in the current generation, so first should GetGroupDesc success
-func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, offset int64) error {
-	client := &kafka.Client{
-		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
-		Transport: p.sharedTransport,
-	}
-
-	req := &kafka.OffsetCommitRequest{
-		Addr:     client.Addr,
-		GroupID:  group,
-		MemberID: group,
-		Topics:   make(map[string][]kafka.OffsetCommit),
-	}
-	req.Topics[topic] = []kafka.OffsetCommit{{
-		Partition: partition,
-		Offset:    offset,
-		Metadata:  "change committed offset",
-	}}
-
-	resp, err := client.OffsetCommit(context.Background(), req)
+func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, new_offset int64) error {
+	group_offsets, err := p.GetGroupOffset(group)
 	if err != nil {
 		return err
 	}
-	if resp.Topics != nil {
-		if offsetCommitPartition, ok := resp.Topics[topic]; ok && len(offsetCommitPartition) > 0 {
-			if offsetCommitPartition[0].Error != nil {
-				return offsetCommitPartition[0].Error
-			}
+
+	var my_group_offset *GroupOffset
+	for _, group_offset := range group_offsets {
+		if group_offset.Topic == topic && group_offset.Partition == partition {
+			my_group_offset = &group_offset
+			break
 		}
+	}
+	if my_group_offset == nil {
+		return fmt.Errorf("not found group offset: %s:%d", topic, partition)
+	}
+	if my_group_offset.CommittedOffset == new_offset { // no need to commit
+		return nil
+	}
+	if new_offset < my_group_offset.FirstOffset {
+		return fmt.Errorf("new offset %d is less than first offset %d", new_offset, my_group_offset.FirstOffset)
+	}
+	if new_offset > my_group_offset.LastOffset {
+		return fmt.Errorf("new offset %d is bigger than last offset %d", new_offset, my_group_offset.LastOffset)
+	}
+
+	consumergroup, err := kafka.NewConsumerGroup(kafka.ConsumerGroupConfig{
+		ID:      group,
+		Brokers: p.KafkaConfig.Brokers,
+		Topics:  []string{topic},
+	})
+	if err != nil {
+		// fmt.Printf("error creating consumer group: %+v\n", err)
+		return err
+	}
+	defer consumergroup.Close()
+
+	gen, err := consumergroup.Next(context.TODO())
+	if err != nil {
+		// fmt.Printf("error getting next generation: %+v\n", err)
+		return err
+	}
+
+	// assignments is empty.
+	// assignments := gen.Assignments[topic]
+	// for _, assignment := range assignments {
+	// 	assign_partition, assign_offset := assignment.ID, assignment.Offset
+	// 	fmt.Printf("topic %s: partition: %d, offset: %d\n", topic, assign_partition, assign_offset)
+	// }
+
+	err = gen.CommitOffsets(map[string]map[int]int64{
+		topic: {
+			partition: new_offset, // the offset to commit
+		},
+	})
+	if err != nil {
+		// fmt.Printf("error committing offsets next generation: %+v\n", err)
+		return err
 	}
 
 	return nil

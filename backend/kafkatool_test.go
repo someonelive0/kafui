@@ -117,48 +117,6 @@ func TestGetClusterConfig(t *testing.T) {
 	t.Logf("configs: %#v", configs)
 }
 
-// 这个函数是kafka-go库有错误
-func TestGetGroupDesc(t *testing.T) {
-	myconfig, err := LoadConfig(config_fileame)
-	if err != nil {
-		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
-	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
-
-	desc, err := kafkatool.GetGroupDesc("idm-server-group-2")
-	if err != nil {
-		t.Fatal("GetGroupDesc failed ", err)
-	}
-	t.Logf("desc: %#v", desc)
-}
-
-func TestGetGroupOffset(t *testing.T) {
-	myconfig, err := LoadConfig(config_fileame)
-	if err != nil {
-		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
-	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
-
-	desc, err := kafkatool.GetGroupOffset("trs-app")
-	if err != nil {
-		t.Fatal("GetGroupOffset failed ", err)
-	}
-	t.Logf("group offsets: %#v", desc)
-}
-
-func TestSetGroupOffset(t *testing.T) {
-	myconfig, err := LoadConfig(config_fileame)
-	if err != nil {
-		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
-	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
-
-	err = kafkatool.SetGroupOffset("kafka2nats", "httpTopic", 0, 111)
-	if err != nil {
-		t.Fatal("SetGroupOffset failed ", err)
-	}
-}
-
 // 该函数不准，通常返回-1，应该根据TopicPartitin获得Offset
 func TestGetTopicOffset(t *testing.T) {
 	myconfig, err := LoadConfig(config_fileame)

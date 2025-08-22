@@ -1,7 +1,7 @@
 {
   "name": "kafui",
   "version": "0.1.0",
-  "author": "Lizhi",
+  "author": "Someonelive",
   "private": true,
   "scripts": {
     "dev": "vite build --watch",
