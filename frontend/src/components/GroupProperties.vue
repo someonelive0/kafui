@@ -82,7 +82,8 @@ const refresh = () => {
     }
   })
   .catch((err: string) => {
-    console.error('Kafkatool.GetGroupDesc ', err);
+    console.error('Kafkatool.GetGroupDesc failed: ', err);
+    groupdesc.value.GroupState = "BUSY";
   });
 }
 

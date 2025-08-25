@@ -3,6 +3,7 @@
 ## Version 0.0.3    2025-08-22
 
 Set consumer group offset.
+Add consumer group desc.
 
 
 ## Version 0.0.2    2025-08-21
