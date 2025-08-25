@@ -35,7 +35,7 @@
       ><v-tooltip activator="parent" location="bottom">Limit messages, 0 means no limit, -100 means last 100</v-tooltip>
       </v-text-field>&nbsp;
       <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
-      <v-btn icon="mdi-plus" size="small" @click="showNewDialog"></v-btn>
+      <v-btn icon="mdi-plus" size="small" @click="showNewMsgDialog"></v-btn>
     </v-card-title>
 
     <v-data-table
@@ -57,7 +57,24 @@
       </template>
     </v-data-table>
     
-    <v-dialog v-model="newDialog" width="600">
+    <v-divider :thickness="1" class="border-opacity-75" color="info"></v-divider>
+
+    <v-card variant="outlined" hover>
+      <v-card-subtitle class="d-flex align-center pt-4">
+        <v-icon icon="mdi-file-document"></v-icon> &nbsp;
+        Partition: {{ selectedPartition }}
+        <v-spacer></v-spacer>
+        Offset: {{ selectedOffset }}
+        <v-spacer></v-spacer>
+        Timestamp: {{ selectedTimestamp }}
+        <v-spacer></v-spacer>
+        <v-btn icon="mdi-content-copy" size="small" @click="copyToClipboard">COPY</v-btn>
+      </v-card-subtitle>
+
+      <json-viewer :value="jsonData"></json-viewer>
+    </v-card>
+  
+    <v-dialog v-model="newMsgDialog" width="600">
       <v-card
         max-width="600"
         prepend-icon="mdi-pen-plus"
@@ -91,7 +108,7 @@
         </v-container>
         <template v-slot:actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue-darken-4" rounded="0" variant="outlined" text="Close" @click="newDialog = false"></v-btn>
+          <v-btn color="blue-darken-4" rounded="0" variant="outlined" text="Close" @click="newMsgDialog = false"></v-btn>
           <v-btn color="blue-darken-4" rounded="0" variant="flat" text="Write" @click="writeMsg"></v-btn>
         </template>
       </v-card>
@@ -106,9 +123,10 @@
   </v-snackbar>
 </template>
 
+
 <script setup lang="ts">
-import { ref, reactive, defineProps } from "vue"
-import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { defineProps, onMounted, reactive, ref } from "vue";
+import JsonViewer from 'vue-json-viewer';
 import { backend } from "../wailsjs/go/models";
 
 
@@ -118,11 +136,16 @@ let loading = ref(true);
 let search = ref('');
 let limit = ref('1000');
 let partition = ref('0');
-let newDialog = ref(false);
+let newMsgDialog = ref(false);
 let msgkey = ref('');
 let msgvalue = ref('');
 let snackbar = ref(false);
 let snacktext = '';
+let jsonData = ref('');
+let selectedPartition = ref(0);
+let selectedOffset = ref(0);
+let selectedTimestamp = ref('');
+
 
 const headers = [
   { title: 'Timestamp', align: 'start', key: 'time' },
@@ -162,8 +185,8 @@ const refresh = () => {
   });
 }
 
-const showNewDialog = () => {
-  newDialog.value = true;
+const showNewMsgDialog = () => {
+  newMsgDialog.value = true;
 }
 
 const writeMsg = () => {
@@ -179,7 +202,7 @@ const writeMsg = () => {
   window.go.backend.KafkaTool.WriteMsg(name, msgkey.value, msgvalue.value).then(() => {
     snacktext = 'write message success!';
     snackbar.value = true;
-    newDialog.value = false;
+    newMsgDialog.value = false;
     refresh();
   })
   .catch((err: string) => {
@@ -191,6 +214,23 @@ const writeMsg = () => {
 
 const rowClicked = (row: backend.Message) => {
   console.log('rowClicked ', row.time, row.offset);
+  selectedPartition.value = row.partition;
+  selectedOffset.value = row.offset;
+  selectedTimestamp.value =  row.time;
+  try {
+    jsonData.value = JSON.parse(row.value);
+  } catch (error) {
+    jsonData.value = row.value;
+  }
+}
+
+const copyToClipboard = () => {
+  const text = JSON.stringify(jsonData.value);
+  navigator.clipboard.writeText(text).then(() => {
+    // console.log('Text copied to clipboard');
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
 }
 
 </script>

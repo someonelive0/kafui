@@ -33,7 +33,7 @@
 
         <v-window-item key="Data" value="Data">
           <v-container fluid>
-            <Data :name="topic" />
+            <TopicData :name="topic" />
           </v-container>
         </v-window-item>
 
@@ -50,12 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, isRef } from 'vue';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
-import TopicProperties from './TopicProperties.vue'
-import Data from './Data.vue'
-import Config from './Config.vue'
-
+import Config from './Config.vue';
+import TopicData from './TopicData.vue';
+import TopicProperties from './TopicProperties.vue';
 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
