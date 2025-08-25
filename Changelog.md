@@ -1,5 +1,13 @@
 # ChangeLog of Kafui
 
+
+
+## Version 0.0.4    2025-08-25
+
+Show topic message in json viewer.
+Copy topic message in json viewer.
+
+
 ## Version 0.0.3    2025-08-22
 
 Set consumer group offset.
