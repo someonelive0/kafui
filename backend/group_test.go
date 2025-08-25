@@ -5,7 +5,22 @@ import (
 	"testing"
 )
 
-// 这个函数是kafka-go库有错误
+// Group 没有config项，这个测试是会出错
+func TestGetGroupConfig(t *testing.T) {
+	myconfig, err := LoadConfig(config_fileame)
+	if err != nil {
+		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
+	}
+	kafkatool := NewKafkaTool(&myconfig.Kafka)
+
+	configs, err := kafkatool.GetGroupConfig("testgroup")
+	if err != nil {
+		t.Fatal("GetGroupConfig failed ", err)
+	}
+	t.Logf("configs: %#v", configs)
+}
+
+// 这个函数是kafka-go库有错误, kafka-go v0.4.48 Now work fine
 func TestGetGroupDesc(t *testing.T) {
 	myconfig, err := LoadConfig(config_fileame)
 	if err != nil {
@@ -17,7 +32,8 @@ func TestGetGroupDesc(t *testing.T) {
 	if err != nil {
 		t.Fatal("GetGroupDesc failed ", err)
 	}
-	t.Logf("desc: %#v", desc)
+	fmt.Printf("desc: %s\n", desc)
+	t.Logf("desc: %s", desc)
 }
 
 func TestGetGroupOffset(t *testing.T) {

@@ -74,21 +74,6 @@ func TestGetTopicConfig(t *testing.T) {
 	t.Logf("configs: %#v", configs)
 }
 
-// Group 没有config项，这个测试是会出错
-// func TestGetGroupConfig(t *testing.T) {
-// 	myconfig, err := LoadConfig(config_fileame)
-// 	if err != nil {
-// 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
-// 	}
-// 	kafkatool := NewKafkaTool(&myconfig.Kafka)
-
-// 	configs, err := kafkatool.GetGroupConfig("trs-app")
-// 	if err != nil {
-// 		t.Fatal("GetGroupConfig failed ", err)
-// 	}
-// 	t.Logf("configs: %#v", configs)
-// }
-
 func TestGetBrokerConfig(t *testing.T) {
 	myconfig, err := LoadConfig(config_fileame)
 	if err != nil {

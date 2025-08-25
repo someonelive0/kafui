@@ -2,11 +2,20 @@
   <v-card class="pa-1 ma-1" variant="tonal">
     <v-card-item>
       <div>
-        <div class="text-overline mb-1">
-          ID: {{ name }}
-        </div>
         <div class="text-h6 mb-1">
-          Host: {{ name }}
+          Consumer Group: {{ name }}
+        </div>
+        <div class="mb-1">
+          GroupID: {{ groupdesc.GroupID }}
+        </div>
+        <div class="mb-1">
+          GroupState: {{ groupdesc.GroupState }}
+        </div>
+        <div class="mb-1">
+          Error: {{ groupdesc.Error }}
+        </div>
+        <div class="mb-1">
+          Members: {{ groupdesc.Members }}
         </div>
       </div>
     </v-card-item>
@@ -43,12 +52,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue"
+import { defineProps, onMounted, ref } from "vue";
 
 const { name } = defineProps(['name']) // 可以简写 解构
 let dialog = ref(false);
 let snackbar = ref(false);
 let snacktext = '';
+let groupdesc = ref({
+  "Error": null,
+  "GroupID": "",
+  "GroupState": "",
+  "Members": null
+});
+
+
+onMounted(() => {
+  refresh();
+})
+
+const refresh = () => {
+
+  window.go.backend.KafkaTool.GetGroupDesc(name).then((desc: Uint8Array) => {
+    // console.log('Kafkatool.GetGroupDesc ', desc);
+    // desc return []byte, need use base64.decode(window.atob) to decode it
+    // console.log('Kafkatool.GetGroupDesc ', window.atob(desc));
+    if (desc != null) {
+      // let descobj = JSON.parse(window.atob(desc));
+      groupdesc.value = JSON.parse(window.atob(desc));
+    }
+  })
+  .catch((err: string) => {
+    console.error('Kafkatool.GetGroupDesc ', err);
+  });
+}
 
 const deleteGroup = () => {
   console.log('deleteGroup ', name);

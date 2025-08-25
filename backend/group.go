@@ -62,7 +62,16 @@ func GroupOffsetHeader() []string {
 }
 
 // 这个函数是kafka-go库有错误，不能正常返回
-func (p *KafkaTool) GetGroupDesc(group string) ([]string, error) {
+/*
+kafka-go v0.4.48 Now work fine, return
+{
+ "Error": null,
+ "GroupID": "testgroup",
+ "GroupState": "Empty",
+ "Members": null
+}
+*/
+func (p *KafkaTool) GetGroupDesc(group string) ([]byte, error) {
 	client := &kafka.Client{
 		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
@@ -79,12 +88,15 @@ func (p *KafkaTool) GetGroupDesc(group string) ([]string, error) {
 		}
 		return nil, err
 	}
-	b, _ := json.MarshalIndent(resp, "", " ")
+	if len(resp.Groups) == 0 {
+		return nil, fmt.Errorf("not found group '%s'", group)
+	}
+	b, _ := json.MarshalIndent(resp.Groups[0], "", " ")
 	if p.Appctx != nil {
 		runtime.LogInfof(*p.Appctx, "DescribeGroups '%s': %s\n", group, b)
 	}
 
-	return nil, nil
+	return b, nil
 }
 
 func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {

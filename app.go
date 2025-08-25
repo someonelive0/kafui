@@ -81,3 +81,10 @@ func (a *App) SetMyconfig(myconfig *backend.Myconfig) error {
 func (a *App) TestKafka(kafkaConfig *backend.KafkaConfig) (*backend.Broker, error) {
 	return backend.TestKafa(kafkaConfig)
 }
+
+func (a *App) Goto(url string) error {
+	fmt.Printf("Goto url: %s\n", url)
+	runtime.BrowserOpenURL(a.ctx, url)
+
+	return nil
+}

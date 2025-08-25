@@ -23,5 +23,32 @@
       <v-card-text>
         Kafui is a Kafka GUI client.
       </v-card-text>
+
+      <v-card-actions>
+        <v-btn color="secondary" text="GOTO" variant="tonal" @click="goto"></v-btn>
+        <v-spacer></v-spacer>
+        https://github.com/someonelive0/kafui
+      </v-card-actions>
     </v-card>
 </template>
+
+
+<script setup lang="ts">
+import { Goto } from "../wailsjs/go/main/App";
+
+
+const goto = () => {
+  console.log("goto");
+  var url = "https://github.com/someonelive0/kafui";
+
+  // window.go.runtime.BrowserOpenURL(url);
+
+  Goto(url).then(() => { // window.go.main.App.Goto
+
+  })
+  .catch((err: string) => {
+    console.error('KafkaTool.ListGroups', err);
+  });
+}
+
+</script>
