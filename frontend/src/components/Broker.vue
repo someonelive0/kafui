@@ -46,9 +46,9 @@
                   </div>
                 </div>
               </v-card-item>
-              <v-card-actions>
+              <!-- <v-card-actions>
                 <v-btn @click="window.WindowReload()">Click me</v-btn>
-              </v-card-actions>
+              </v-card-actions> -->
             </v-card>
           </v-container>
         </v-window-item>
@@ -66,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, isRef } from 'vue';
-import Config from './Config.vue'
+import { ref } from 'vue';
+import Config from './Config.vue';
 
 
 // 使用 stat 传递页面参数
