@@ -22,6 +22,7 @@
         :items="groups"
         :search="search"
         :items-per-page="-1"
+        hover
       >
         <template v-slot:item="{ item }">
           <tr 
@@ -40,16 +41,18 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 
-// 使用 stat 传递页面参数
-// let groups = window.history.state.groups;
-// console.log('window.history.state.groups ', groups);
+const { query, params } = useRoute();
+// console.log('{ query, params } = useRoute() ', query, params);
+const param_groups = ref(query.groups).value;
+
 let groups: Array<object> = [];
-if (window.history.state.groups) {
-  for (var i=0,len=window.history.state.groups.length; i<len; i++) {
-    groups[i] = {name: window.history.state.groups[i]}
+// console.log('param_groups ', param_groups);
+if (param_groups != null && param_groups != undefined && Array.isArray(param_groups)) {
+  for (var i=0,len=param_groups.length; i<len; i++) {
+    groups[i] = {name: param_groups[i]}
   }
 }
 

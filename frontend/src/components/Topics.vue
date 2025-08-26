@@ -23,6 +23,7 @@
         :items="topics"
         :search="search"
         :items-per-page="-1"
+        hover
       >
         <template v-slot:item="{ item }">
           <tr 
@@ -80,20 +81,32 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive } from "vue"
-import { useRouter } from 'vue-router';
 
+<script setup lang="ts">
+import { reactive, ref } from "vue";
+import { useRoute, useRouter } from 'vue-router';
+
+
+const { query, params } = useRoute();
+console.log('{ query, params } = useRoute() ', query, params);
+const param_topics = ref(query.topics).value;
 
 // 使用 stat 传递页面参数, 把字符串数组转换成对象数组
 // let topics = window.history.state.topics;
 // console.log('window.history.state.topics ', topics);
 let topics: Array<object> = reactive([]);
-if (window.history.state.topics) {
-  for (var i=0,len=window.history.state.topics.length; i<len; i++) {
-    topics[i] = {name: window.history.state.topics[i]}
+// if (window.history.state.topics) {
+//   for (var i=0,len=window.history.state.topics.length; i<len; i++) {
+//     topics[i] = {name: window.history.state.topics[i]}
+//   }
+// }
+// console.log('param_topics ', param_topics);
+if (param_topics != null && param_topics != undefined && Array.isArray(param_topics)) {
+  for (var i=0,len=param_topics.length; i<len; i++) {
+    topics[i] = {name: param_topics[i]}
   }
 }
+
 
 const headers: Array<object> = [
   { title: 'Topic Name', align: 'start', sortable: true, key: 'name' },

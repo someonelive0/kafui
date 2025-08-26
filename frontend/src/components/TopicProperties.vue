@@ -27,7 +27,7 @@
       </v-dialog>
     </v-card-title>
 
-    <v-table fixed-header density="compact">
+    <v-table fixed-header density="compact" hover>
       <thead>
         <tr>
           <th class="text-left">
@@ -75,8 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineProps } from "vue"
-import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { defineProps, onMounted, ref } from "vue";
 import { backend } from "../wailsjs/go/models";
 
 
@@ -94,7 +93,7 @@ onMounted(() => {
 
 const refresh = () => {
   window.go.backend.KafkaTool.GetTopicPartition(name).then((items: Array<backend.Partition>) => {
-    console.log('Kafkatool.GetTopicPartition ', items);
+    // console.log('Kafkatool.GetTopicPartition ', items);
     partitions.value = items;
     number.value = 0;
     var total = 0

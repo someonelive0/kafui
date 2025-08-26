@@ -156,12 +156,12 @@
 
 </template>
 
+
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
-import { useRouter, useRoute } from 'vue-router';
-import Setting from './components/Setting.vue'
-import About from './components/About.vue'
+import { onMounted, reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import About from './components/About.vue';
+import Setting from './components/Setting.vue';
 import { backend } from "./wailsjs/go/models";
 
 
@@ -213,7 +213,7 @@ const getBrokers = () => {
   // });
 
   window.go.backend.KafkaTool.ListBrokers().then((items: Array<backend.Broker>) => {
-    console.log('Kafkatool.ListBrokers ', items);
+    // console.log('Kafkatool.ListBrokers ', items);
     brokers = items;
     snacktext = 'get brokers success!';
     snackbar.value = true;
@@ -259,7 +259,9 @@ const gotoDashboard = () => {
     query: {
         num_brokers: brokers.length,
         num_topics: topics.length,
-        num_groups: groups.length
+        num_groups: groups.length,
+        topics: topics,
+        groups: groups
     }
   });
 }
@@ -299,7 +301,7 @@ const gotoTopic = (topic: string, i: number) => {
 const gotoTopics = () => {
   router.push({
     name: 'Topics',
-    state: { topics: topics }
+    query: { topics: topics }
   });
 }
 
@@ -317,7 +319,7 @@ const gotoGroup = (group: string, i: number) => {
 const gotoGroups = () => {
   router.push({
     name: 'Groups',
-    state: { groups: groups }
+    query: { groups: groups }
   });
 }
 

@@ -26,6 +26,7 @@
       :items-per-page="-1"
       density="compact"
       item-value="topic"
+      hover
     >
       <template v-slot:item.actions="{ item }">
         <div class="d-flex ga-2 justify-end">
@@ -89,6 +90,7 @@
   </v-snackbar>
 
 </template>
+
 
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from 'vue';

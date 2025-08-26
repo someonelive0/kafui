@@ -24,6 +24,7 @@
       :items-per-page="-1"
       item-value="config_name"
       density="compact"
+      hover
     >
     <template v-slot:item="{ item }">
       <tr :class="getRowClass(item)"
@@ -51,8 +52,7 @@
 
 
 <script setup lang="ts">
-import { ref, reactive, defineProps } from "vue"
-import {onBeforeMount,onMounted,onBeforeUpdate,onUnmounted} from "vue"
+import { defineProps, onMounted, reactive, ref } from "vue";
 import { backend } from "../wailsjs/go/models";
 
 
@@ -106,7 +106,7 @@ onMounted(() => {
 
 let selectedRowName = 'compression.type';
 const rowClicked = (row: backend.ConfigEntry) => {
-  console.log("Clicked item: ", row.config_name)
+  // console.log("Clicked item: ", row.config_name)
   selectedRowName = row.config_name;
 }
 

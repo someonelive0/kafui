@@ -46,6 +46,7 @@
       :items-per-page="10"
       density="compact"
       item-value="offset"
+      hover
     >
       <template v-slot:item="{ item }">
         <tr @click="rowClicked(item)">
@@ -213,7 +214,7 @@ const writeMsg = () => {
 }
 
 const rowClicked = (row: backend.Message) => {
-  console.log('rowClicked ', row.time, row.offset);
+  // console.log('rowClicked ', row.time, row.offset);
   selectedPartition.value = row.partition;
   selectedOffset.value = row.offset;
   selectedTimestamp.value =  row.time;

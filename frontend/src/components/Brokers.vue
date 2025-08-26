@@ -26,7 +26,7 @@
       <v-window v-model="selectedTab">
         <v-window-item key="Menmbers" value="Menmbers">
           <v-container fluid>
-            <v-table fixed-header density="compact">
+            <v-table fixed-header density="compact" hover>
               <thead>
                 <tr>
                   <th class="text-left">Broker ID</th>
@@ -64,10 +64,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, isRef } from 'vue';
-import Config from './Config.vue'
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { backend } from '../wailsjs/go/models';
+import Config from './Config.vue';
 
 
 // 使用 stat 传递页面参数
