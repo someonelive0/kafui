@@ -74,6 +74,19 @@ func TestGetTopicConfig(t *testing.T) {
 	t.Logf("configs: %#v", configs)
 }
 
+func TestSetTopicConfig(t *testing.T) {
+	myconfig, err := LoadConfig(config_fileame)
+	if err != nil {
+		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
+	}
+	kafkatool := NewKafkaTool(&myconfig.Kafka)
+
+	err = kafkatool.SetTopicConfig("test1", "delete.retention.ms", "96400000")
+	if err != nil {
+		t.Fatal("SetTopicConfig failed ", err)
+	}
+}
+
 func TestGetBrokerConfig(t *testing.T) {
 	myconfig, err := LoadConfig(config_fileame)
 	if err != nil {

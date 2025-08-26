@@ -6,13 +6,16 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
-        label="Search"
-        prepend-inner-icon="mdi-magnify"
+        label="Filter"
+        prepend-inner-icon="mdi-filter-outline"
         variant="outlined"
         hide-details
         single-line
         density="compact"
-      ></v-text-field>
+        clearable
+        ><v-tooltip activator="parent" location="bottom">Filter by keyword</v-tooltip>
+      </v-text-field>&nbsp;
+      <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>
     </v-card-title>
 
     <v-data-table
@@ -34,15 +37,52 @@
         <td>{{ item.readonly }}</td>
         <td>{{ item.is_default }}</td>
         <td>{{ item.is_sensitive }}</td>
+        <td class="d-flex ga-2 justify-end">
+          <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="edit(item)"></v-icon>
+        </td>
       </tr>
     </template>
     <template #bottom>
       <!-- Leave this slot empty to hide pagination controls -->
     </template>
     </v-data-table>
+
+    <v-dialog v-model="dialog" max-width="500">
+      <v-card
+        :subtitle="`${isEditing ? 'Set' : 'Create'} config item of ${title}`"
+        :title="`${isEditing ? 'Edit' : 'Add'} config item of ${title}`"
+      >
+        <template v-slot:text>
+          <v-row>
+            <v-col cols="6">
+              <v-text-field v-model="formModel.topic" label="Topic" color="black" disabled></v-text-field>
+            </v-col>
+
+            <v-col cols="6" md="6">
+              <v-text-field v-model="formModel.config_name" label="Config Name" disabled></v-text-field>
+            </v-col>
+
+            <v-col cols="12">
+              <v-text-field v-model="formModel.config_value" label="Config Value" variant="outlined"></v-text-field>
+            </v-col>
+
+          </v-row>
+        </template>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="bg-surface-light">
+          <v-btn text="Cancel" variant="plain" @click="dialog = false"></v-btn>
+
+          <v-spacer></v-spacer>
+
+          <v-btn text="Save" @click="save"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-accent-4" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-accent-3" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
       <v-btn color="pink" variant="text" @click="snackbar = false">Close</v-btn>
@@ -52,7 +92,7 @@
 
 
 <script setup lang="ts">
-import { defineProps, onMounted, reactive, ref } from "vue";
+import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from "vue";
 import { backend } from "../wailsjs/go/models";
 
 
@@ -77,7 +117,18 @@ const sortBy = ref([{ key: 'config_name', order: 'asc' }]);
 let snackbar = ref(false);
 let snacktext = '';
 
+// for edit group offset
+const formModel = ref([])
+const dialog = shallowRef(false)
+const isEditing = toRef(() => !!formModel.value.topic)
+
+
 onMounted(() => {
+  refresh();
+})
+
+const refresh = () => {
+  loading.value = true;
   let getConf = null;
   if (title == 'topic') {
     getConf = window.go.backend.KafkaTool.GetTopicConfig;
@@ -102,7 +153,51 @@ onMounted(() => {
     snackbar.value = true;
     loading.value = false;
   });
-})
+}
+
+const edit = (item) => {
+  // const found = books.value.find(book => book.id === id)
+  // console.log("edit item: " + item.topic);
+  formModel.value = item;
+  formModel.value.topic = name;
+  dialog.value = true
+}
+
+const save = () => {
+  // console.log("save item: " + formModel.value.topic);
+  formModel.value.config_value = formModel.value.config_value.trim();
+  if (formModel.value.config_value.length == 0) {
+    snacktext = 'Error: New config value can not be empty!';
+    snackbar.value = true;
+    return;
+  }
+
+  let setConf = null;
+  if (title == 'topic') {
+    setConf = window.go.backend.KafkaTool.SetTopicConfig;
+  } else if (title == 'broker') {
+    setConf = window.go.backend.KafkaTool.SetBrokerConfig;
+  } else if (title == 'cluster') {
+    setConf = window.go.backend.KafkaTool.SetClusterConfig;
+  } else {
+    console.error('unknow title ', title);
+    return;
+  }
+
+  setConf(formModel.value.topic, formModel.value.config_name, formModel.value.config_value ).then(() => {
+    snacktext = 'set config ' + name + ' success!';
+    snackbar.value = true;
+
+    dialog.value = false
+    refresh();
+  })
+  .catch((err: string) => {
+    // console.error('Kafkatool.SetGroupOffset ', err);
+    snacktext = 'set config ' + name + ' failed: ' + err;
+    snackbar.value = true;
+  });
+
+}
 
 let selectedRowName = 'compression.type';
 const rowClicked = (row: backend.ConfigEntry) => {

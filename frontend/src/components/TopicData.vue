@@ -6,13 +6,14 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
-        label="Search"
-        prepend-inner-icon="mdi-magnify"
+        label="Filter"
+        prepend-inner-icon="mdi-filter-outline"
         variant="outlined"
         hide-details
         single-line
         density="compact"
-      ><v-tooltip activator="parent" location="bottom">Match keyword</v-tooltip>
+        clearable
+      ><v-tooltip activator="parent" location="bottom">Filter keyword</v-tooltip>
       </v-text-field>&nbsp;
       <v-text-field
         v-model="partition"

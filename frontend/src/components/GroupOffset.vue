@@ -6,13 +6,14 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
-        label="Search"
-        prepend-inner-icon="mdi-magnify"
+        label="Filter"
+        prepend-inner-icon="mdi-filter-outline"
         variant="outlined"
         hide-details
         single-line
         density="compact"
-      ><v-tooltip activator="parent" location="bottom">Match keyword</v-tooltip>
+        clearable
+      ><v-tooltip activator="parent" location="bottom">Filter by keyword</v-tooltip>
       </v-text-field>&nbsp;
       <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
     </v-card-title>
@@ -143,13 +144,13 @@ const refresh = () => {
 
 const edit = (item) => {
   // const found = books.value.find(book => book.id === id)
-  console.log("edit item: " + item.topic);
+  // console.log("edit item: " + item.topic);
   formModel.value = item;
   dialog.value = true
 }
 
 const save = () => {
-  console.log("save item: " + formModel.value.topic);
+  // console.log("save item: " + formModel.value.topic);
   formModel.value.committed_offset = formModel.value.committed_offset.trim();
   if (formModel.value.committed_offset.length == 0 || isNaN(Number(formModel.value.committed_offset)) ) {
     snacktext = 'Error: New Offset must be numeric!';

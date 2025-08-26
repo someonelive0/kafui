@@ -7,13 +7,15 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
-          label="Search"
-          prepend-inner-icon="mdi-magnify"
+          label="Filter"
+          prepend-inner-icon="mdi-filter-outline"
           variant="outlined"
           hide-details
           single-line
           density="compact"
-        ></v-text-field>&nbsp;
+          clearable
+        ><v-tooltip activator="parent" location="bottom">Filter by keyword</v-tooltip>
+        </v-text-field>&nbsp;
         <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
         <v-btn icon="mdi-plus" size="small" @click="newDialog = true"></v-btn>
       </v-card-title>

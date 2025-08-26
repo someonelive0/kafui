@@ -209,6 +209,68 @@ func (p *KafkaTool) GetConfig(resourceType, resourceName string) ([]ConfigEntry,
 	return configs, nil
 }
 
+func (p *KafkaTool) SetTopicConfig(topic, configName, configValue string) error {
+	return p.SetConfig("topic", topic, configName, configValue)
+}
+
+func (p *KafkaTool) SetConfig(resourceType, resourceName, configName, configValue string) error {
+	client := &kafka.Client{
+		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
+		Transport: p.sharedTransport,
+	}
+
+	rType := kafka.ResourceTypeUnknown
+	switch resourceType {
+	case "topic":
+		rType = kafka.ResourceTypeTopic
+	case "broker":
+		rType = kafka.ResourceTypeBroker // 输入参数是broker的ID号，例如 "1"
+	case "cluster":
+		rType = kafka.ResourceTypeCluster // 输入参数是clusterid，例如 "1"
+	case "group":
+		rType = kafka.ResourceTypeGroup // group 通常没有配置项
+	}
+
+	// 不要调用 AlterConfigs，这个需要把所有参数都作为参数输入，否则修改一个参数后其他参数又变成默认值了。
+	// 需要调用 IncrementalAlterConfigs，意思增量修改，表示可以修改其中一个参数，其他保持不变。
+	req := &kafka.IncrementalAlterConfigsRequest{
+		Addr: client.Addr,
+		Resources: []kafka.IncrementalAlterConfigsRequestResource{
+			0: {
+				ResourceType: rType,
+				ResourceName: resourceName,
+				Configs: []kafka.IncrementalAlterConfigsRequestConfig{
+					0: {
+						Name:            configName,
+						Value:           configValue,
+						ConfigOperation: kafka.ConfigOperationSet,
+					},
+				},
+			},
+		},
+	}
+	resp, err := client.IncrementalAlterConfigs(context.Background(), req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resources == nil || len(resp.Resources) == 0 {
+		return fmt.Errorf("not found")
+	}
+	s := ""
+	for i := range resp.Resources {
+		if resp.Resources[i].Error != nil {
+			s += fmt.Sprintf("type=%d, name '%s' setconfig failed: %v ",
+				resp.Resources[i].ResourceType, resp.Resources[i].ResourceName, resp.Resources[i].Error)
+		}
+	}
+	if len(s) > 0 {
+		return fmt.Errorf("%s", s)
+	}
+
+	return nil
+}
+
 // static functions
 func TestKafa(KafkaConfig *KafkaConfig) (*Broker, error) {
 	var mechanism sasl.Mechanism = nil
