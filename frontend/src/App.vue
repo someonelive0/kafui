@@ -9,9 +9,10 @@
     >
 
       <v-list density="compact">
-        <v-list-item @click="refresh" :title="connection_name" :subtitle="connection_addr">
+        <v-list-item @click="refresh" :title="connection_name" :subtitle="connection_addr"
+          :class="{ 'active-connection': kafkaConnected === 1 }">
           <template v-slot:prepend>
-            <v-avatar color="grey-lighten-1">
+            <v-avatar color="blue-darken-2">
               <v-icon color="white">mdi-refresh</v-icon>
             </v-avatar>
           </template>
@@ -165,6 +166,7 @@ import Setting from './components/Setting.vue';
 import { backend } from "./wailsjs/go/models";
 
 
+let kafkaConnected = 0;
 const router = useRouter(); 
 const route = useRoute(); 
 const drawer = ref(true);
@@ -217,11 +219,13 @@ const getBrokers = () => {
     brokers = items;
     snacktext = 'get brokers success!';
     snackbar.value = true;
+    kafkaConnected = 1;
   })
   .catch((err: string) => {
     console.error('Kafkatool.ListBrokers ', err);
     snacktext = 'get brokers failed: ' + err;
     snackbar.value = true;
+    kafkaConnected = 0;
   });
 }
 
@@ -366,4 +370,13 @@ list-item__prepend>.v-icon~.v-list-item__spacer, .v-list-item__prepend>.v-toolti
 .customPrepend :deep(.v-list-item__prepend .v-list-item__spacer) {
   width: 8px;
 }
+
+/* change connection color by myself */
+.active-connection {
+  background-color:hwb(200 85% 0%) !important;
+  /* Change this to the color you want */
+  color: #110000 !important;
+  /* Change the text color to match the background color */
+}
+
 </style>

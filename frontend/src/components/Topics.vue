@@ -88,7 +88,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 
 const { query, params } = useRoute();
-console.log('{ query, params } = useRoute() ', query, params);
+// console.log('{ query, params } = useRoute() ', query, params);
 const param_topics = ref(query.topics).value;
 
 // 使用 stat 传递页面参数, 把字符串数组转换成对象数组
