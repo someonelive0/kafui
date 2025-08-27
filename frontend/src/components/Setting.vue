@@ -39,10 +39,12 @@
         <v-divider></v-divider>
 
         <v-card-actions>
-            <v-btn color="secondary" text="Test Connction" variant="tonal" @click="test"></v-btn>
+            <v-btn color="secondary" text="Test Connction" variant="tonal" 
+              prepend-icon="mdi-connection" @click="test"></v-btn>
             <v-spacer></v-spacer>
             <v-btn text="Close" variant="plain" @click="cancel"></v-btn>
-            <v-btn color="primary" text="Save" variant="tonal" @click="save"></v-btn>
+            <v-btn color="primary" text="Save" variant="tonal" 
+              prepend-icon="mdi-check-circle" @click="save"></v-btn>
         </v-card-actions>
     </v-card>
 
@@ -55,9 +57,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from "vue"
-import { backend } from "../wailsjs/go/models";
+import { defineEmits, defineProps, ref } from "vue";
 import { TestKafka } from "../wailsjs/go/main/App";
+import { backend } from "../wailsjs/go/models";
 
 
 const rules = [

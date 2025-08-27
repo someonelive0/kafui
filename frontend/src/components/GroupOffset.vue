@@ -74,10 +74,10 @@
 
         <v-card-actions class="bg-surface-light">
           <v-btn text="Cancel" variant="plain" @click="dialog = false"></v-btn>
-
           <v-spacer></v-spacer>
-
-          <v-btn text="Save" @click="save"></v-btn>
+          <v-btn text="Save" variant="outlined" 
+            prepend-icon="mdi-check-circle" color="blue-darken-4"
+            @click="save"></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

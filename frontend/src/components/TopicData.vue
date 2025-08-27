@@ -70,7 +70,20 @@
         <v-spacer></v-spacer>
         Timestamp: {{ selectedTimestamp }}
         <v-spacer></v-spacer>
-        <v-btn icon="mdi-content-copy" size="small" @click="copyToClipboard">COPY</v-btn>
+        <v-btn class="text-none" variant="flat" color="#5865f2" 
+          prepend-icon="mdi-content-copy" 
+          size="small" border
+          @click="copyToClipboard">
+          Copy
+          <v-tooltip activator="parent" location="bottom">Copy to clipboard</v-tooltip>
+        </v-btn>&nbsp;
+        <v-btn class="text-none" variant="flat" color="#5865f2" 
+          prepend-icon="mdi-file-send" 
+          size="small" border
+          @click="resendMsg">
+          Resend
+          <v-tooltip activator="parent" location="bottom">Resend this message to topic</v-tooltip>
+        </v-btn>
       </v-card-subtitle>
 
       <json-viewer :value="jsonData"></json-viewer>
@@ -147,6 +160,8 @@ let jsonData = ref('');
 let selectedPartition = ref(0);
 let selectedOffset = ref(0);
 let selectedTimestamp = ref('');
+let selectedKey = '';
+let selectedValue = '';
 
 
 const headers = [
@@ -219,6 +234,8 @@ const rowClicked = (row: backend.Message) => {
   selectedPartition.value = row.partition;
   selectedOffset.value = row.offset;
   selectedTimestamp.value =  row.time;
+  selectedKey = row.key;
+  selectedValue = row.value;
   try {
     jsonData.value = JSON.parse(row.value);
   } catch (error) {
@@ -232,6 +249,26 @@ const copyToClipboard = () => {
     // console.log('Text copied to clipboard');
   }).catch(err => {
     console.error('Failed to copy: ', err);
+  });
+}
+
+const resendMsg = () => {
+  if (selectedValue.length == 0) {
+    snacktext = 'resend message is empty';
+    snackbar.value = true;
+    return;
+  }
+
+  window.go.backend.KafkaTool.WriteMsg(name, selectedKey, selectedValue).then(() => {
+    snacktext = 'resend message success!';
+    snackbar.value = true;
+    newMsgDialog.value = false;
+    refresh();
+  })
+  .catch((err: string) => {
+    // console.error('Kafkatool.WriteMsg ', err);
+    snacktext = 'resend message failed: ' + err;
+    snackbar.value = true;
   });
 }
 

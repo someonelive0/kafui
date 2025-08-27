@@ -17,14 +17,14 @@
         This software is under 
         
         <B @click="openBrower('https://mit-license.org')">
-          <v-icon icon="mdi-open-in-new" size="small"></v-icon>&nbsp;MIT license
+          <v-icon icon="mdi-open-in-new" color="blue-darken-3" size="small"></v-icon>&nbsp;MIT license
         </B>.
         <v-img :src="myLogo" width="330" ></v-img>
       </v-card-text>
 
       <v-card-actions>
-        <v-btn color="secondary" text="GITHUB" @click="openBrower('https://github.com/someonelive0/kafui')"></v-btn>
-        <v-spacer></v-spacer>
+        <v-btn density="compact" icon="mdi-github" color="blue-darken-3"
+          @click="openBrower('https://github.com/someonelive0/kafui')"></v-btn>
         https://github.com/someonelive0/kafui
       </v-card-actions>
 

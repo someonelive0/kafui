@@ -27,14 +27,14 @@
         </template>
 
         <v-card
-          prepend-icon="mdi-map-marker"
-          text="This consumer group will be deleted, and lost all information of the group."
-          :title="'Really delete group ' + name + ' ?'" 
+          prepend-icon="mdi-alert"
+          text="This consumer group will be deleted, and will lost all information of the group."
+          :title="'Really delete Group [' + name + '] ?'" 
         >
           <template v-slot:actions>
             <v-spacer></v-spacer>
-            <v-btn @click="dialog = false">Cancel</v-btn>&nbsp;
-            <v-btn color="red-darken-4" @click="deleteGroup">Delete</v-btn>
+            <v-btn border @click="dialog = false">Cancel</v-btn>&nbsp;
+            <v-btn border color="red-darken-4" @click="deleteGroup">Delete</v-btn>
           </template>
         </v-card>
 
