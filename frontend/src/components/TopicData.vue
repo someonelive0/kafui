@@ -91,12 +91,12 @@
   
     <v-dialog v-model="newMsgDialog" width="600">
       <v-card
-        max-width="600"
+        max-width="600" density="compact"
         prepend-icon="mdi-pen-plus"
         text="Input message's key and value."
         title="Write Message to Topic"
       >
-        <v-container fluid>
+        <v-container fluid >
           <v-row>
             <v-col cols="12" sm="12">
               <v-textarea v-model="msgkey"
@@ -105,6 +105,7 @@
                 rows="2"
                 variant="outlined"
                 auto-grow
+                persistent-hint hint="Message's key can be empty"
               ></v-textarea>
             </v-col>
           </v-row>
@@ -117,6 +118,7 @@
                 variant="outlined"
                 auto-grow
                 shaped
+                persistent-hint hint="Message's value is requried"
               ></v-textarea>
             </v-col>
           </v-row>
@@ -211,7 +213,7 @@ const writeMsg = () => {
   msgkey.value = msgkey.value.trim();
   msgvalue.value = msgvalue.value.trim();
   if (msgvalue.value.length == 0) {
-    snacktext = 'value can not be empty!'
+    snacktext = 'message value can not be empty!'
     snackbar.value = true;
     return;
   }

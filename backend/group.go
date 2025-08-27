@@ -11,7 +11,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// kafka group of customer
+// kafka group of Consumer
 type Group struct {
 }
 

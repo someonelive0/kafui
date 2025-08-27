@@ -27,10 +27,12 @@
         </template>
 
         <v-card
-          prepend-icon="mdi-alert"
           text="This consumer group will be deleted, and will lost all information of the group."
           :title="'Really delete Group [' + name + '] ?'" 
         >
+          <template v-slot:prepend>
+            <v-icon color="red" icon="mdi-alert"></v-icon>
+          </template>
           <template v-slot:actions>
             <v-spacer></v-spacer>
             <v-btn border @click="dialog = false">Cancel</v-btn>&nbsp;

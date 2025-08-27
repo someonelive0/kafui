@@ -2,34 +2,42 @@
     <v-card prepend-icon="mdi-cog" title="Setting" >
       <v-card-text>
         <v-row dense class="d-flex align-center">
-            <v-col cols="4" md="4" sm="4">Connection Name:</v-col>
+            <v-col cols="4" md="4" sm="4">* Connection Name:</v-col>
             <v-col cols="8" md="8" sm="8">
-                <v-text-field :rules="rules" hide-details="auto" v-model="name"></v-text-field>
+                <v-text-field 
+                  :rules="rules" hide-details="auto" v-model="name"
+                  placeholder="mykafka"
+                  persistent-hint hint="self define connection name"></v-text-field>
             </v-col>
         </v-row>
 
         <v-row dense class="d-flex align-center">
-            <v-col cols="4" md="4" sm="4">Brokers:</v-col>
+            <v-col cols="4" md="4" sm="4">* Brokers:</v-col>
             <v-col cols="8" md="8" sm="8">
-                <v-text-field :rules="rules" hide-details="auto" v-model="brokers" hint="Example: broker1:9092,broker2:9092"></v-text-field>
+                <v-text-field 
+                  :rules="rules" hide-details="auto" v-model="brokers"
+                  placeholder="localhost:9092"
+                  persistent-hint hint="Example: broker1:9092,broker2:9092"></v-text-field>
             </v-col>
         </v-row>
 
         <v-row dense class="d-flex align-center">
             <v-col cols="4" md="4" sm="4">SASL Mechanism:</v-col>
             <v-col cols="8" md="8" sm="8">
-                <v-select :items="['None', 'SASL_PLAINTEXT']" required v-model="sasl_mechanism"></v-select>
+                <v-select 
+                  :items="['None', 'SASL_PLAINTEXT']" required v-model="sasl_mechanism"
+                  persistent-hint hint="None means not use SASL"></v-select>
             </v-col>
         </v-row>
 
         <v-row dense class="d-flex align-center">
-            <v-col cols="4" md="4" sm="4">User:</v-col>
+            <v-col cols="4" md="4" sm="4">User & Password:</v-col>
             <v-col cols="4" md="4" sm="4">
-                <v-text-field v-model="user"></v-text-field>
+                <v-text-field label="User" v-model="user"></v-text-field>
             </v-col>
 
             <v-col cols="4" md="4" sm="4">
-                <v-text-field type="password" v-model="password"></v-text-field>
+                <v-text-field label="Password" type="password" v-model="password"></v-text-field>
             </v-col>
         </v-row>
 

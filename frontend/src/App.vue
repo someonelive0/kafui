@@ -8,7 +8,7 @@
         @click="rail = false"
     >
 
-      <v-list density="compact">
+      <v-list density="compact" style="padding: 0px;">
         <v-list-item @click="refresh" :title="connection_name" :subtitle="connection_addr"
           :class="{ 'active-connection': kafkaConnected === 1 }">
           <template v-slot:prepend>
@@ -23,7 +23,7 @@
 
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
-        @click="gotoDashboard" ></v-list-item>
+          @click="gotoDashboard" ></v-list-item>
 
         <v-list-group value="Brokers" >
           <template v-slot:activator="{ props }">
@@ -64,12 +64,12 @@
           
         </v-list-group>
 
-        <v-list-group value="Customers" >
+        <v-list-group value="Consumer Groups" >
           <template v-slot:activator="{ props }">
             <v-list-item color="success" class="customPrepend"
               v-bind="props"
               prepend-icon="mdi-account-multiple"
-              title="Customers"
+              title="Consumer Groups"
               @click="gotoGroups()"
             ></v-list-item>
           </template>
@@ -107,7 +107,7 @@
 
       <template v-slot:append>
         <v-btn icon="mdi-cog" @click="setting"></v-btn>
-        <v-btn icon="mdi-magnify"></v-btn>
+        <!-- <v-btn icon="mdi-magnify"></v-btn> -->
         <!-- <v-btn icon="mdi-dots-vertical"></v-btn> -->
         <v-menu>
             <template v-slot:activator="{ props }">

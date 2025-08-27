@@ -62,7 +62,8 @@
             </v-col>
 
             <v-col cols="12">
-              <v-text-field v-model="formModel.committed_offset" label="New Offset" variant="outlined"></v-text-field>
+              <v-text-field :rules="[rules.required, rules.numeric]" label="New Offset" variant="outlined"
+                v-model="formModel.committed_offset"></v-text-field>
             </v-col>
             <v-col cols="12">
               <small class="text-caption text-medium-emphasis">*New Offset must &gt; 'First Offset' and &lt; 'Last Offset'</small>
@@ -99,6 +100,10 @@ import { backend } from '../wailsjs/go/models';
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
+const rules = {
+  required: value => !!value || 'Field is required',
+  numeric: (value: string) => (value && !isNaN(Number(formModel.value.committed_offset))) || 'Field must be numeric',
+}
 
 const headers = [
       { title: 'Topic', align: 'start', sortable: true, key: 'topic' },

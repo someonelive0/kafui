@@ -13,10 +13,12 @@
         </template>
 
         <v-card
-          prepend-icon="mdi-alert"
           text="This Topic will be deleted, and will lost all data in the Topic."
           :title="'Really delete Topic [' + name + '] ?'" 
         >
+          <template v-slot:prepend>
+            <v-icon color="red" icon="mdi-alert"></v-icon>
+          </template>
           <template v-slot:actions>
             <v-spacer></v-spacer>
             <v-btn border @click="dialog = false">Cancel</v-btn>&nbsp;
