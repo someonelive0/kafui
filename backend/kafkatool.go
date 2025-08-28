@@ -213,6 +213,14 @@ func (p *KafkaTool) SetTopicConfig(topic, configName, configValue string) error 
 	return p.SetConfig("topic", topic, configName, configValue)
 }
 
+func (p *KafkaTool) SetBrokerConfig(topic, configName, configValue string) error {
+	return p.SetConfig("broker", topic, configName, configValue)
+}
+
+func (p *KafkaTool) SetClusterConfig(topic, configName, configValue string) error {
+	return p.SetConfig("cluster", topic, configName, configValue)
+}
+
 func (p *KafkaTool) SetConfig(resourceType, resourceName, configName, configValue string) error {
 	client := &kafka.Client{
 		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),

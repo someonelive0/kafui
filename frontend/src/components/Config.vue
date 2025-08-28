@@ -55,7 +55,7 @@
         <template v-slot:text>
           <v-row>
             <v-col cols="6">
-              <v-text-field v-model="formModel.topic" label="Topic" color="black" disabled></v-text-field>
+              <v-text-field v-model="formModel.topic" label="Object" color="black" disabled></v-text-field>
             </v-col>
 
             <v-col cols="6" md="6">
@@ -159,7 +159,7 @@ const edit = (item) => {
   // const found = books.value.find(book => book.id === id)
   // console.log("edit item: " + item.topic);
   formModel.value = item;
-  formModel.value.topic = name;
+  formModel.value.topic = name.toString();
   dialog.value = true
 }
 
@@ -187,12 +187,11 @@ const save = () => {
   setConf(formModel.value.topic, formModel.value.config_name, formModel.value.config_value ).then(() => {
     snacktext = 'set config ' + name + ' success!';
     snackbar.value = true;
-
     dialog.value = false
     refresh();
   })
   .catch((err: string) => {
-    // console.error('Kafkatool.SetGroupOffset ', err);
+    // console.error('Kafkatool.setConf ', err);
     snacktext = 'set config ' + name + ' failed: ' + err;
     snackbar.value = true;
   });

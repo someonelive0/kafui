@@ -50,7 +50,8 @@
       hover
     >
       <template v-slot:item="{ item }">
-        <tr @click="rowClicked(item)">
+        <tr :class="getRowClass(item)"
+          @click="rowClicked(item)">
           <td>{{ item.time }}</td>
           <td>{{ item.offset }}</td>
           <td>{{ item.partition }}</td>
@@ -274,4 +275,17 @@ const resendMsg = () => {
   });
 }
 
+const getRowClass = (row: backend.Message) => {
+  if (row.offset === selectedOffset.value) {
+    return 'msg-highlight';
+  }
+  return '';
+}
+
 </script>
+
+<style scoped>
+.msg-highlight {
+  background-color: rgba(173, 223, 252, 0.765);
+}
+</style>
