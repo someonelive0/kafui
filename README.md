@@ -4,7 +4,8 @@ Kafui is a Kafka GUI client. This software is under MIT license .
 
 Kafui use Wails 2 + Vue 3 Typescript.
 And use wails-vite-vue-ts from https://github.com/airvip/wails-vite-vue-ts.git
-Backend use kafka-go from github.com/segmentio/kafka-go
+
+Backend use kafka-go from https://github.com/segmentio/kafka-go
 
 ## License
 
