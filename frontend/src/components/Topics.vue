@@ -17,7 +17,11 @@
         ><v-tooltip activator="parent" location="bottom">Filter by keyword</v-tooltip>
         </v-text-field>&nbsp;
         <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
-        <v-btn icon="mdi-plus" size="small" @click="newDialog = true"></v-btn>
+        <v-tooltip text="Create new topic" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" icon="mdi-plus" size="small" @click="newDialog = true"></v-btn>
+          </template>
+        </v-tooltip>
       </v-card-title>
 
       <v-data-table density="compact"
@@ -42,27 +46,29 @@
     <v-dialog v-model="newDialog" width="600">
       <v-card
         max-width="500"
-        prepend-icon="mdi-pen-plus"
         text="Input Topic name and number of partitions and replicas."
         title="Create New Topic"
       >
+        <template v-slot:prepend>
+          <v-icon color="green" icon="mdi-pen-plus"></v-icon>
+        </template>
         <v-container fluid>
           <v-row dense class="d-flex align-center">
             <v-col cols="5" md="5" sm="5">Topic Name*:</v-col>
             <v-col cols="7" md="7" sm="7">
-                <v-text-field hide-details="auto" v-model="topic_name"></v-text-field>
+                <v-text-field hide-details="auto" v-model="topic_name" placeholder="mytopic"></v-text-field>
             </v-col>
           </v-row>
           <v-row dense class="d-flex align-center">
             <v-col cols="5" md="5" sm="5">Number of Partitions*:</v-col>
             <v-col cols="7" md="7" sm="7">
-                <v-text-field hide-details="auto" v-model="partitions"></v-text-field>
+                <v-text-field hide-details="auto" v-model="partitions" placeholder="1"></v-text-field>
             </v-col>
           </v-row>
           <v-row dense class="d-flex align-center">
             <v-col cols="5" md="5" sm="5">Number of Replicas*:</v-col>
             <v-col cols="7" md="7" sm="7">
-                <v-text-field hide-details="auto" v-model="replicas"></v-text-field>
+                <v-text-field hide-details="auto" v-model="replicas" placeholder="1"></v-text-field>
             </v-col>
           </v-row>
         </v-container>

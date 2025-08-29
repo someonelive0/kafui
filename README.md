@@ -15,6 +15,8 @@ This software is under MIT license, to visit file [LICENSE](LICENSE) and https:/
 
 English | [简体中文](README.zh-CN.md) show how to develop this project
 
+Depend golang-1.23, nodejs-20 or later.
+
 ```shell
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 

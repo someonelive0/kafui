@@ -35,8 +35,21 @@
         density="compact"
       ><v-tooltip activator="parent" location="bottom">Limit messages, 0 means no limit, -100 means last 100</v-tooltip>
       </v-text-field>&nbsp;
-      <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
-      <v-btn icon="mdi-plus" size="small" @click="showNewMsgDialog"></v-btn>
+      <v-tooltip text="Refresh" location="bottom">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
+        </template>
+      </v-tooltip>
+      <v-tooltip text="Write message to topic" location="bottom">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon="mdi-plus" size="small" @click="showNewMsgDialog"></v-btn>&nbsp;
+        </template>
+      </v-tooltip>
+      <v-tooltip text="Export follow messages to file" location="bottom">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon="mdi-download" size="small" @click="exportMsgs"></v-btn>
+        </template>
+      </v-tooltip>
     </v-card-title>
 
     <v-data-table
@@ -145,6 +158,7 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref } from "vue";
 import JsonViewer from 'vue-json-viewer';
+import { ExportMsgs } from "../wailsjs/go/main/App";
 import { backend } from "../wailsjs/go/models";
 
 
@@ -280,6 +294,32 @@ const getRowClass = (row: backend.Message) => {
     return 'msg-highlight';
   }
   return '';
+}
+
+// export messages to file
+const exportMsgs = () => {
+  console.log('exportMsgs: ' + msgs.length);
+  if (msgs.length ===0) {
+    snacktext = 'export messages is empty, export nothing!';
+    snackbar.value = true;
+    return;
+  }
+
+  let text = '';
+  for (var i=0; i<msgs.length; i++) {
+    text += msgs[i].value;
+    text += "\n";
+  }
+
+  ExportMsgs(name, text).then(() => {
+    snacktext = 'export messages to file success!';
+    snackbar.value = true;
+  })
+  .catch((err: string) => {
+    // console.error('App.ExportMsgs ', err);
+    snacktext = 'export messages to file failed: ' + err;
+    snackbar.value = true;
+  });
 }
 
 </script>

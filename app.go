@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"kafui/backend"
+	"os"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -85,6 +86,39 @@ func (a *App) TestKafka(kafkaConfig *backend.KafkaConfig) (*backend.Broker, erro
 func (a *App) Goto(url string) error {
 	fmt.Printf("Goto url: %s\n", url)
 	runtime.BrowserOpenURL(a.ctx, url)
+
+	return nil
+}
+
+func (a *App) ExportMsgs(topic, text string) error {
+	if len(text) == 0 {
+		return fmt.Errorf("export content is empty")
+	}
+
+	// 弹出保存文件对话框
+	savePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           fmt.Sprintf("保存 %s 消息成文本文件", topic),
+		DefaultFilename: fmt.Sprintf("%s-%s", topic, time.Now().Format("20060102-150405")),
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Text Files",
+				Pattern:     "*.txt",
+			},
+		},
+	})
+	if err != nil || savePath == "" {
+		return err
+	}
+
+	f, err := os.Create(savePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+		return err
+	}
 
 	return nil
 }
