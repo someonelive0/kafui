@@ -19,8 +19,15 @@ Depend golang-1.23, nodejs-20 or later.
 
 ```shell
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
+wails doctor
 
+# build frontend
+cd frontend
+npm run build
+
+# build app
 wails build
+wails build --tags exp_gowebview2loader
 ```
 
 kafui.exe will found in build/bin
