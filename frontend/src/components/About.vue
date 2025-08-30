@@ -1,10 +1,13 @@
 <template>
     <v-card flat
       class="mx-auto"
-      prepend-icon="mdi-copyright"
       width="400"
     >
-
+      <template v-slot:prepend>
+        <v-avatar color="blue-darken-4">
+          <v-icon icon="mdi-copyright"></v-icon>
+        </v-avatar>
+      </template>
       <template v-slot:title>
         KAFUI
       </template>
