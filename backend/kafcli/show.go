@@ -68,7 +68,7 @@ func init() {
 			c.App.Printf("Found configs %d\n", len(configs))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.ConfigHeader())
+			table.Header(backend.ConfigHeader())
 			for i := range configs {
 				table.Append(configs[i].ToStrings())
 			}
@@ -97,7 +97,7 @@ func init() {
 			c.App.Printf("Found partitions %d\n", len(partitions))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.PartitionrHeader())
+			table.Header(backend.PartitionrHeader())
 			for i := range partitions {
 				table.Append(partitions[i].ToStrings())
 			}
@@ -158,7 +158,7 @@ func init() {
 			c.App.Printf("Found offsets %d\n", len(offsets))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.GroupOffsetHeader())
+			table.Header(backend.GroupOffsetHeader())
 			for i := range offsets {
 				table.Append(offsets[i].ToStrings())
 			}
@@ -196,7 +196,7 @@ func init() {
 			c.App.Printf("Found configs %d\n", len(configs))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.ConfigHeader())
+			table.Header(backend.ConfigHeader())
 			for i := range configs {
 				table.Append(configs[i].ToStrings())
 			}
@@ -234,7 +234,7 @@ func init() {
 			c.App.Printf("Found configs %d\n", len(configs))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.ConfigHeader())
+			table.Header(backend.ConfigHeader())
 			for i := range configs {
 				table.Append(configs[i].ToStrings())
 			}

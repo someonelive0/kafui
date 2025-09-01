@@ -32,7 +32,7 @@ func init() {
 			fmt.Printf("Found brokers %d\n", len(brokers))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader(backend.BrokerHeader())
+			table.Header(backend.BrokerHeader())
 			for i := range brokers {
 				table.Append(brokers[i].ToStrings())
 			}
@@ -55,7 +55,7 @@ func init() {
 			fmt.Printf("Found topics %d\n", len(topics))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader([]string{"Topic"})
+			table.Header([]string{"Topic"})
 			for i := range topics {
 				table.Append([]string{topics[i]})
 			}
@@ -78,7 +78,7 @@ func init() {
 			fmt.Printf("Found groups %d\n", len(groups))
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader([]string{"Group"})
+			table.Header([]string{"Group"})
 			for i := range groups {
 				table.Append([]string{groups[i]})
 			}
