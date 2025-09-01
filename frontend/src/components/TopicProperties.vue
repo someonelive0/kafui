@@ -67,10 +67,10 @@
       </tbody>
     </v-table>
 
-    <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-accent-4" elevation="24">
+    <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
       {{ snacktext }}
       <template v-slot:actions>
-        <v-btn color="pink" variant="text" @click="snackbar = false" >Close</v-btn>
+        <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
       </template>
     </v-snackbar>
   </v-card>

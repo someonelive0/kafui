@@ -12,7 +12,7 @@
         <v-list-item @click="refresh" :title="connection_name" :subtitle="connection_addr"
           :class="{ 'active-connection': kafkaConnected === 1 }">
           <template v-slot:prepend>
-            <v-avatar color="blue-darken-2">
+            <v-avatar :color="iconColor">
               <v-icon color="white">mdi-refresh</v-icon>
             </v-avatar>
           </template>
@@ -148,10 +148,10 @@
     <About />
   </v-dialog>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-accent-4" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
-      <v-btn color="pink" variant="text" @click="snackbar = false" >Close</v-btn>
+      <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
     </template>
   </v-snackbar>
 
@@ -167,6 +167,7 @@ import { backend } from "./wailsjs/go/models";
 
 
 let kafkaConnected = 0;
+let iconColor = "grey";
 const router = useRouter(); 
 const route = useRoute(); 
 const drawer = ref(true);
@@ -220,12 +221,14 @@ const getBrokers = () => {
     snacktext = 'get brokers success!';
     snackbar.value = true;
     kafkaConnected = 1;
+    iconColor = "blue-darken-2";
   })
   .catch((err: string) => {
     console.error('Kafkatool.ListBrokers ', err);
     snacktext = 'get brokers failed: ' + err;
     snackbar.value = true;
     kafkaConnected = 0;
+    iconColor = "grey";
   });
 }
 
@@ -373,7 +376,7 @@ list-item__prepend>.v-icon~.v-list-item__spacer, .v-list-item__prepend>.v-toolti
 
 /* change connection color by myself */
 .active-connection {
-  background-color:hwb(200 85% 0%) !important;
+  background-color:hwb(200 80% 0%) !important;
   /* Change this to the color you want */
   color: #110000 !important;
   /* Change the text color to match the background color */

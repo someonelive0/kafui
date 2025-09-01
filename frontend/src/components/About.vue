@@ -4,7 +4,7 @@
       width="400"
     >
       <template v-slot:prepend>
-        <v-avatar color="blue-darken-4">
+        <v-avatar color="blue-accent-2">
           <v-icon icon="mdi-copyright"></v-icon>
         </v-avatar>
       </template>
