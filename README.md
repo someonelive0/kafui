@@ -7,6 +7,10 @@ And use wails-vite-vue-ts from https://github.com/airvip/wails-vite-vue-ts.git
 
 Backend use kafka-go from https://github.com/segmentio/kafka-go
 
+Butterfly icon is from:
+https://www.iconarchive.com/show/childrens-book-animals-icons-by-iconarchive/Butterfly-icon.html
+
+
 ## License
 
 This software is under MIT license, to visit file [LICENSE](LICENSE) and https://mit-license.org/ for details.
