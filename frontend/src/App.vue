@@ -115,6 +115,7 @@
             </template>
             <v-list density="compact">
               <v-list-item density="compact" prepend-icon="mdi-information" title="About" @click="about()" />
+              <v-list-item density="compact" prepend-icon="mdi-hammer-screwdriver" title="Kcat" @click="router.push({ name: 'Kcat', })" />
             </v-list>
           </v-menu>
       </template>

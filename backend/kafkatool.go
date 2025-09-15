@@ -83,7 +83,9 @@ func (p *KafkaTool) ListBrokers() ([]Broker, error) {
 		return nil, err
 	}
 	p.leader.Copy(&controller)
-	runtime.LogInfof(*p.Appctx, "dial kafka leader success: %#v", p.leader)
+	if p.Appctx != nil {
+		runtime.LogInfof(*p.Appctx, "dial kafka leader success: %#v", p.leader)
+	}
 
 	brokers, err := conn.Brokers()
 	if err != nil {
@@ -131,23 +133,25 @@ func (p *KafkaTool) ListTopics() ([]string, error) {
 	return topics, nil
 }
 
-func (p *KafkaTool) GetTopicMeta(topic string) ([]string, error) {
+func (p *KafkaTool) GetMetadata() (*kafka.MetadataResponse, error) {
 	client := &kafka.Client{
 		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
 	}
 
 	metareq := &kafka.MetadataRequest{
-		Addr:   client.Addr,
-		Topics: []string{topic},
+		Addr: client.Addr,
+		// Topics: []string{topic},
 	}
 	metaresp, err := client.Metadata(context.Background(), metareq)
 	if err != nil {
 		return nil, err
 	}
-	runtime.LogInfof(*p.Appctx, "GetTopicMeta '%s' failed: %#v", topic, metaresp)
+	if p.Appctx != nil {
+		runtime.LogInfof(*p.Appctx, "GetMetadata failed: %#v", metaresp)
+	}
 
-	return nil, nil
+	return metaresp, nil
 }
 
 func (p *KafkaTool) GetTopicConfig(topic string) ([]ConfigEntry, error) {

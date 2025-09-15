@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from './components/Home.vue'
-import Dashboard from './components/Dashboard.vue'
-import Brokers from './components/Brokers.vue'
 import Broker from './components/Broker.vue'
-import Topic from './components/Topic.vue'
-import Topics from './components/Topics.vue'
+import Brokers from './components/Brokers.vue'
+import Dashboard from './components/Dashboard.vue'
 import Group from './components/Group.vue'
 import Groups from './components/Groups.vue'
+import Kcat from './components/Kcat.vue'
+import Topic from './components/Topic.vue'
+import Topics from './components/Topics.vue'
 import ZooKeeper from './components/ZooKeeper.vue'
 
 
@@ -30,6 +30,7 @@ const routes = [
     { path: '/groups', name: 'Groups', component: Groups,
       props: true, mete: { title: 'groups' }
     },
+    { path: '/kcat', name: 'Kcat', component: Kcat },
     { path: '/zk', name: 'ZooKeeper', component: ZooKeeper },
 ]
 

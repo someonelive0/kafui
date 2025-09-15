@@ -1,6 +1,9 @@
 package backend
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 var config_fileame = "../kafui.toml"
 
@@ -53,10 +56,11 @@ func TestGetTopicMeta(t *testing.T) {
 	}
 	kafkatool := NewKafkaTool(&myconfig.Kafka)
 
-	metas, err := kafkatool.GetTopicMeta("dbTopic")
+	metas, err := kafkatool.GetMetadata()
 	if err != nil {
 		t.Fatal("GetTopicMeta failed ", err)
 	}
+	fmt.Printf("metas: %#v", metas)
 	t.Logf("metas: %#v", metas)
 }
 

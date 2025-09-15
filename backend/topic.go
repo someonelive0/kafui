@@ -82,6 +82,7 @@ func (p *KafkaTool) GetTopicPartitionOffset(topic string, partition int) (int64,
 	conn, err := p.dialer.DialLeader(context.Background(), "tcp", p.KafkaConfig.Brokers[0], topic, partition)
 	if err != nil {
 		runtime.LogErrorf(*p.Appctx, "DialLeader [%s] failed %s", p.KafkaConfig.Brokers[0], err)
+		return 0, 0, err
 	}
 	defer conn.Close()
 

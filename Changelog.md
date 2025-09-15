@@ -2,6 +2,11 @@
 
 
 
+## Version 0.0.7    2025-09-15
+
+Add kcat tool info.
+
+
 ## Version 0.0.6    2025-09-01
 
 Save topic data to file.
