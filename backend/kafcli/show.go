@@ -36,13 +36,14 @@ func init() {
 				return fmt.Errorf("topic name is empty")
 			}
 			c.App.Println("show topic meta:", c.Args.String("topic"))
+			c.App.Println("not implementd")
 
-			metas, err := kafkatool.GetTopicMeta(c.Args.String("topic"))
-			if err != nil {
-				fmt.Println("GetTopicMeta", err)
-				return err
-			}
-			c.App.Printf("metas: %#v\n", metas)
+			// metas, err := kafkatool.GetTopicMeta(c.Args.String("topic"))
+			// if err != nil {
+			// 	fmt.Println("GetTopicMeta", err)
+			// 	return err
+			// }
+			// c.App.Printf("metas: %#v\n", metas)
 
 			return nil
 		},
