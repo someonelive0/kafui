@@ -77,8 +77,7 @@
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from "vue";
 import { globalUpdateKafkaConfig } from "../datas/global";
-import { GetKafkaConfig, UpdateKafkaConfig } from "../wailsjs/go/backend/ConfigService";
-import { TestKafka } from "../wailsjs/go/main/App";
+import { GetKafkaConfig, TestKafkaConfig, UpdateKafkaConfig } from "../wailsjs/go/backend/ConfigService";
 import { backend } from "../wailsjs/go/models";
 
 
@@ -99,21 +98,21 @@ const stringRules = [
 ];
 
 onMounted(() => {
-    // console.log("ConnConfig init connName: " + connName);
+    // console.log("Kafkaconfig init connName: " + connName);
     GetKafkaConfig(kafkaName).then((kafkaconfig : backend.KafkaConfig) => {
         oldKafkaConfig = JSON.parse(JSON.stringify(kafkaconfig)); // deep copy old conn config
         newKafkaConfig.value = kafkaconfig;
     }).catch((err: string) => {
-        console.error('ConfigService.GetConnConfig', err);
-        snacktext = 'ConfigService.GetConnConfig faile: '+ err;
+        console.error('ConfigService.GetKafkaConfig', err);
+        snacktext = 'ConfigService.GetKafkaConfig faile: '+ err;
         snackbar.value = true;
     });
 });
 
 const cancel = () => {
-    let tmpConnConfig = {} as backend.KafkaConfig;
-    tmpConnConfig = JSON.parse(JSON.stringify(oldKafkaConfig)); // deep copy old conn config to a tmp object
-    newKafkaConfig.value = tmpConnConfig;
+    let tmpKafkaConfig = {} as backend.KafkaConfig;
+    tmpKafkaConfig = JSON.parse(JSON.stringify(oldKafkaConfig)); // deep copy old conn config to a tmp object
+    newKafkaConfig.value = tmpKafkaConfig;
 }
 
 const valid = () => {
@@ -143,7 +142,7 @@ const save = () => {
 const test = () => {
     if (!valid()) return;
 
-    TestKafka(newKafkaConfig.value).then((leader: backend.Broker) => { // window.go.main.App.TestKafka
+    TestKafkaConfig(newKafkaConfig.value).then((leader: backend.Broker) => { // window.go.main.App.TestKafka
         showSnackBar('Test connection success! Leader is ' + leader.host + ':' + leader.port, true);
     })
     .catch((err: string) => {

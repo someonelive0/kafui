@@ -54,7 +54,7 @@ func (p *ConfigService) AddKafkaConfig(name, templateName string) (*KafkaConfig,
 		}
 	}
 
-	// new a ConnConfig and return it
+	// new a KafkaConfig and return it
 	newKafkaConfig.Name = name
 	p.Myconfig.KafkaConfigs = append(p.Myconfig.KafkaConfigs, *newKafkaConfig)
 	SaveConfig(p.Myconfig, p.Filename)
@@ -85,7 +85,7 @@ func (p *ConfigService) DeleteKafkaConfig(name string) error {
 }
 
 // test conn config wether can connect database
-// param connConfig maybe not stored in config file, it can be temp var
+// param kafkaConfig maybe not stored in config file, it can be temp var
 // return db version by map
 func (p *ConfigService) TestKafkaConfig(kafkaConfig *KafkaConfig) (*Broker, error) {
 	for _, v := range p.Myconfig.KafkaConfigs {

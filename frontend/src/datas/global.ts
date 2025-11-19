@@ -65,7 +65,7 @@ export function globalDeleteKafkaConfig(kafkaName: string) {
 
 /*
   Map<string, reactive<ScannerStatus>> of reactive
-  set: globalScannerMap.set(connconfig.name, reactive(new ScannerStatus(connconfig.name)));
+  set: globalScannerMap.set(kafkaconfig.name, reactive(new ScannerStatus(kafkaconfig.name)));
   change:   globalScannerMap.get(connName.value).logs += 'running...';
   bind: globalScannerMap.get(connName).logs
 */

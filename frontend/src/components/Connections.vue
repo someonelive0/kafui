@@ -31,9 +31,9 @@
         :items-per-page="-1"
         hover
       >
-        <template v-slot:item.name="{ value }">
-          <v-chip :text="value" border="thin opacity-25" prepend-icon="mdi-database" label
-            @click="rownameClicked(value)">
+        <template v-slot:item.name="{ item }">
+          <v-chip :text="item.name" border="thin opacity-25" prepend-icon="mdi-database" label
+            @click="rowEdit(item)">
             <template v-slot:prepend>
               <v-icon color="medium-emphasis"></v-icon>
             </template>
@@ -151,11 +151,6 @@ let dupName = ref('空配置'); // when add conn config, as config template
 let tplNames = ref(['空配置']); // when add conn config, as config template list
 
 
-// click the name of row
-const rownameClicked = (rowname : string) => {
-  console.log("Clicked item: ", rowname);
-}
-
 const addClick = () => {
   tplNames.value = globalKafkaConfigs.value.map((item: backend.KafkaConfig) => item.name);
   tplNames.value.unshift('empty config');
@@ -211,10 +206,10 @@ const createConn = () => {
   if (!valid()) return;
   // console.log('Connctions createConn', newKafkaName.value, dupName.value);
 
-  AddKafkaConfig(newKafkaName.value, dupName.value).then((connconfig : backend.KafkaConfig) => {
-    showSnackBar('Create kafka connection success: '+connconfig.name, true);
+  AddKafkaConfig(newKafkaName.value, dupName.value).then((kafkaconfig : backend.KafkaConfig) => {
+    showSnackBar('Create kafka connection success: '+kafkaconfig.name, true);
     // update global vars
-    globalAddKafkaConfig(connconfig);
+    globalAddKafkaConfig(kafkaconfig);
     newDialog.value = false;
   }).catch((err: string) => {
     showSnackBar('Create kafka connection failed: '+err, false);

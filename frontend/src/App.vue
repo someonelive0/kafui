@@ -216,13 +216,13 @@ const refresh = () => {
 
 const getMyconfig = () => {
   GetKafkaConfigs().then((kafkaconfigs : backend.KafkaConfig[]) => {
-    console.log('ConfigService.GetConnConfigs', kafkaconfigs);
+    console.log('ConfigService.GetKafkaConfigs', kafkaconfigs);
     globalSetKafkaConfigs(kafkaconfigs);
-    snacktext = 'GetConnConfigs success!';
+    snacktext = 'GetKafkaConfigs success!';
     snackbar.value = true;
   }).catch((err: string) => {
-    console.error('ConfigService.GetConnConfigs', err);
-    snacktext = 'ConfigService.GetConnConfigs faile: '+ err;
+    console.error('ConfigService.GetKafkaConfigs', err);
+    snacktext = 'ConfigService.GetKafkaConfigs faile: '+ err;
     snackbar.value = true;
   });
 }
