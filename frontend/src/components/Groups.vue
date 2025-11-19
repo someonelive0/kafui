@@ -3,7 +3,7 @@
     <v-card flat>
       <v-card-title class="d-flex align-center pe-2">
         <v-icon icon="mdi-account-multiple"></v-icon> &nbsp;
-        Consumer groups {{ groups.length }}
+        Consumer groups {{ globalGroupNames.length }}
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -21,7 +21,7 @@
 
       <v-data-table density="compact"
         :headers="headers"
-        :items="groups"
+        :items="globalGroupNames"
         :search="search"
         :items-per-page="-1"
         hover
@@ -29,7 +29,7 @@
         <template v-slot:item="{ item }">
           <tr 
             @click="rowClicked(item)">
-            <td>{{ item.name }}</td>
+            <td>{{ item }}</td>
           </tr>
         </template>
         <template #bottom>
@@ -43,51 +43,29 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
+import { globalGroupNames } from "../datas/kafka";
+import { ListGroups } from "../wailsjs/go/backend/KafkaTool";
 
-
-const { query, params } = useRoute();
-// console.log('{ query, params } = useRoute() ', query, params);
-const param_groups = ref(query.groups).value;
-
-let groups: Array<object> = [];
-// console.log('param_groups ', param_groups);
-if (param_groups != null && param_groups != undefined && Array.isArray(param_groups)) {
-  for (var i=0,len=param_groups.length; i<len; i++) {
-    groups[i] = {name: param_groups[i]}
-  }
-}
 
 const headers: Array<object> = [
   { title: 'Group Name', align: 'start', sortable: true, key: 'name' },
 ];
 let search = ref('');
-
 const router = useRouter(); 
 
 const refresh = () => {
-  window.go.backend.KafkaTool.ListGroups().then((items: Array<string>) => {
-    // console.log('Kafkatool.ListGroups ', items);
-    for (var i=0,len=items.length; i<len; i++) {
-      groups[i] = {name: items[i]}
-    }
-    // loading.value = false;
-  })
-  .catch((err: string) => {
+  ListGroups().then((items: Array<string>) => {
+    globalGroupNames.value = items;
+  }).catch((err: string) => {
     console.error('Kafkatool.ListGroups ', err);
-    // snacktext = 'read message failed: ' + err;
-    // snackbar.value = true;
-    // loading.value = false;
   });
 }
 
-const rowClicked = (row) => {
-  // console.log("Clicked item: ", row)
+const rowClicked = (row: string) => {
   router.push({
     name: 'Group',
-    query: {
-        group: row.name
-    }
+    query: { group: row }
   });
 }
 

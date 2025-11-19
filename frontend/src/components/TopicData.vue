@@ -181,7 +181,7 @@ let selectedKey = '';
 let selectedValue = '';
 
 
-const headers = [
+const headers: Array<object> = [
   { title: 'Timestamp', align: 'start', key: 'time' },
   { title: 'Offset', align: 'start', key: 'offset' },
   { title: 'Partition', align: 'start', sortable: true, key: 'partition' },

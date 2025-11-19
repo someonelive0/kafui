@@ -49,12 +49,14 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Config from './Config.vue';
 import TopicData from './TopicData.vue';
 import TopicProperties from './TopicProperties.vue';
+
 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);

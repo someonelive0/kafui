@@ -105,7 +105,7 @@ const rules = {
   numeric: (value: string) => (value && !isNaN(Number(formModel.value.committed_offset))) || 'Field must be numeric',
 }
 
-const headers = [
+const headers: Array<object> = [
       { title: 'Topic', align: 'start', sortable: true, key: 'topic' },
       { title: 'Partition', align: 'end', key: 'partition' },
       { title: 'First Offset', align: 'end', key: 'first_offset' },

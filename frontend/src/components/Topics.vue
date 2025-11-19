@@ -3,7 +3,7 @@
     <v-card flat>
       <v-card-title class="d-flex align-center pe-2">
         <v-icon icon="mdi-list-box-outline"></v-icon> &nbsp;
-        Topics {{ topics.length }}
+        Topics {{ globalTopicNames.length }}
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -26,7 +26,7 @@
 
       <v-data-table density="compact"
         :headers="headers"
-        :items="topics"
+        :items="globalTopicNames"
         :search="search"
         :items-per-page="-1"
         hover
@@ -34,7 +34,7 @@
         <template v-slot:item="{ item }">
           <tr 
             @click="rowClicked(item)">
-            <td>{{ item.name }}</td>
+            <td>{{ item }}</td>
           </tr>
         </template>
         <template #bottom>
@@ -80,40 +80,21 @@
       </v-card>
     </v-dialog>
 
-    <v-snackbar v-model="snackbar" timeout=4000 color="deep-purple-darken-3" elevation="24">
-    {{ snacktext }}
-    <template v-slot:actions>
-      <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
-    </template>
-  </v-snackbar>
+    <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
+      {{ snacktext }}
+      <template v-slot:actions>
+        <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useRoute, useRouter } from 'vue-router';
-
-
-const { query, params } = useRoute();
-// console.log('{ query, params } = useRoute() ', query, params);
-const param_topics = ref(query.topics).value;
-
-// 使用 stat 传递页面参数, 把字符串数组转换成对象数组
-// let topics = window.history.state.topics;
-// console.log('window.history.state.topics ', topics);
-let topics: Array<object> = reactive([]);
-// if (window.history.state.topics) {
-//   for (var i=0,len=window.history.state.topics.length; i<len; i++) {
-//     topics[i] = {name: window.history.state.topics[i]}
-//   }
-// }
-// console.log('param_topics ', param_topics);
-if (param_topics != null && param_topics != undefined && Array.isArray(param_topics)) {
-  for (var i=0,len=param_topics.length; i<len; i++) {
-    topics[i] = {name: param_topics[i]}
-  }
-}
+import { ref } from "vue";
+import { useRouter } from 'vue-router';
+import { globalTopicNames } from "../datas/kafka";
+import { CreateTopic, ListTopics } from "../wailsjs/go/backend/KafkaTool";
 
 
 const headers: Array<object> = [
@@ -127,30 +108,20 @@ let partitions = ref('1');
 let replicas = ref('1');
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 
 const refresh = () => {
-  window.go.backend.KafkaTool.ListTopics().then((items: Array<string>) => {
-    // console.log('Kafkatool.ListTopics ', items);
-    for (var i=0,len=items.length; i<len; i++) {
-      topics[i] = {name: items[i]}
-    }
-    // loading.value = false;
-  })
-  .catch((err: string) => {
-    console.error('Kafkatool.ListTopics ', err);
-    // snacktext = 'read message failed: ' + err;
-    // snackbar.value = true;
-    // loading.value = false;
+  ListTopics().then((items: Array<string>) => {
+    globalTopicNames.value = items;
+  }).catch((err: string) => {
+    showSnackBar('KafkaTool.ListTopics failed: '+err, false);
   });
 }
 
-const rowClicked = (row) => {
-  // console.log("Clicked item: ", row)
+const rowClicked = (row: string) => {
   router.push({
     name: 'Topic',
-    query: {
-        topic: row.name
-    }
+    query: { topic: row }
   });
 }
 
@@ -159,13 +130,11 @@ const valid = () => {
   partitions.value = partitions.value.trim()
   replicas.value = replicas.value.trim()
   if (topic_name.value.length == 0) {
-    snacktext = 'topic name con not be empty';
-    snackbar.value = true;
+    showSnackBar('topic name con not be empty', false);
     return false;
   }
   if (isNaN(Number(partitions.value)) || isNaN(Number(replicas.value))) {
-    snacktext = 'partitions or replicas is not number';
-    snackbar.value = true;
+    showSnackBar('partitions or replicas is not number', false);
     return false;
   }
 
@@ -175,20 +144,20 @@ const valid = () => {
 const createTopic = () => {
   snackbar.value = false;
   if (!valid()) return;
-  console.log(topic_name.value, partitions.value, replicas.value);
+  // console.log('createTopic', topic_name.value, partitions.value, replicas.value);
 
-  window.go.backend.KafkaTool.CreateTopic(topic_name.value, Number(partitions.value), Number(replicas.value)).then(() => {
-    // console.log('Kafkatool.ListTopics ', items);
-    snacktext = 'create topic success!';
-    snackbar.value = true;
-    newDialog.value = false;
+  CreateTopic(topic_name.value, Number(partitions.value), Number(replicas.value)).then(() => {
+    showSnackBar('create topic success!', true);
     refresh();
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.CreateTopic ', err);
-    snacktext = 'create topic failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('create topic failed: ' + err, false);
   });
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>

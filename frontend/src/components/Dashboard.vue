@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-1 ma-1">
-    <v-row align="center" justify="left">
+    <v-row align="center" justify="start">
       <v-col cols="auto">
         <v-card
           append-icon="mdi-check"
@@ -11,12 +11,17 @@
           title="Brokers"
           hover
         >
-          <v-card-text>Total: {{ num_brokers }}</v-card-text>
+          <v-card-text>Total: {{ globalBrokers.length }}</v-card-text>
+          <v-card-actions>
+            <v-btn color="teal-accent-4" variant="text" @click="gotoRoute('Brokers')">
+              Learn More
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="left">
+    <v-row align="center" justify="start">
       <v-col cols="auto">
         <v-card
           class="mx-auto"
@@ -31,7 +36,7 @@
           <template v-slot:append>
             <v-icon color="success" icon="mdi-check"></v-icon>
           </template>
-          <v-card-text>Total: {{ num_topics }}</v-card-text>
+          <v-card-text>Total: {{ globalTopicNames.length }}</v-card-text>
           <v-card-actions>
             <v-btn color="teal-accent-4" variant="text" @click="gotoTopics">
               Learn More
@@ -41,7 +46,7 @@
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="left">
+    <v-row align="center" justify="start">
       <v-col cols="auto">
         <v-card
           class="mx-auto"
@@ -56,7 +61,7 @@
           <template v-slot:append>
             <v-icon color="success" icon="mdi-check"></v-icon>
           </template>
-          <v-card-text>Total: {{ num_groups }}</v-card-text>
+          <v-card-text>Total: {{ globalGroupNames.length }}</v-card-text>
           <v-card-actions>
             <v-btn color="teal-accent-4" variant="text" @click="gotoGroups">
               Learn More
@@ -69,28 +74,28 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { globalBrokers, globalGroupNames, globalTopicNames } from "../datas/kafka";
+
 
 const router = useRouter(); 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
 
-const num_brokers = ref(query.num_brokers);
-const num_topics = ref(query.num_topics);
-const num_groups = ref(query.num_groups);
+
 // const brokers = query.brokers;
 const topics = query.topics;
 const groups = query.groups;
 
 
-// const gotoBrokers = () => {
-//   router.push({
-//     name: 'Brokers',
-//     query: { brokers: brokers }
-//   });
-// }
+const gotoBrokers = () => {
+  router.push({
+    name: 'Brokers',
+    query: {  }
+  });
+}
 
 const gotoTopics = () => {
   // router.push('Topics');
@@ -107,4 +112,10 @@ const gotoGroups = () => {
   });
 }
 
+const gotoRoute = (routeName: string) => {
+  router.push({
+    name: routeName,
+    query: { }
+  });
+}
 </script>

@@ -37,7 +37,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="item in brokers"
+                  v-for="item in globalBrokers"
                   :key="item.id"
                   @click="rowClicked(item)"
                 >
@@ -63,24 +63,23 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { globalBrokers } from "../datas/kafka";
 import { backend } from '../wailsjs/go/models';
 import Config from './Config.vue';
 
 
-// 使用 stat 传递页面参数
-let brokers: Array<backend.Broker> = window.history.state.brokers;
-// console.log('window.history.state.broker ', brokers);
+console.log('window.history.state.broker ', globalBrokers);
 let selectedTab = ref("Menmbers"); // 默认选中 Menmbers 页
 const router = useRouter(); 
 
 const rowClicked = (row: backend.Broker) => {
-  // console.log("Clicked item: ", row)
   router.push({
     name: 'Broker',
-    state: { broker: row }
+    query: { broker_id: row.id }
   });
 }
 </script>

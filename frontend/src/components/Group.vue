@@ -42,11 +42,13 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
-import { ref, isRef } from 'vue';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
-import GroupProperties from './GroupProperties.vue'
-import GroupOffset from './GroupOffset.vue'
+import GroupOffset from './GroupOffset.vue';
+import GroupProperties from './GroupProperties.vue';
+
 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);

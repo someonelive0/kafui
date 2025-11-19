@@ -13,7 +13,7 @@
           :class="{ 'active-connection': kafkaConnected === 1 }">
           <template v-slot:prepend>
             <v-avatar :color="iconColor">
-              <v-icon color="white">mdi-refresh</v-icon>
+              <v-icon color="white">mdi-apache-kafka</v-icon>
             </v-avatar>
           </template>
         </v-list-item>
@@ -46,7 +46,7 @@
 
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
-          @click="gotoDashboard" ></v-list-item>
+          @click="gotoRoute('Dashboard')" ></v-list-item>
 
         <v-list-group value="Brokers" >
           <template v-slot:activator="{ props }">
@@ -54,12 +54,12 @@
               v-bind="props"
               prepend-icon="mdi-server"
               title="Brokers"
-              @click="gotoBrokers()"
+              @click="gotoRoute('Brokers')"
             ></v-list-item>
           </template>
 
           <v-list-item rounded="shaped" size="x-small" color="warning" class="customPrepend"
-            v-for="(broker, i) in brokers"
+            v-for="(broker, i) in globalBrokers"
             :key="i"
             prepend-icon="mdi-fridge"
             :title="broker.host+':'+broker.port"
@@ -73,12 +73,12 @@
               v-bind="props"
               prepend-icon="mdi-list-box-outline"
               title="Topics"
-              @click="gotoTopics()"
+              @click="gotoRoute('Topics')"
             ></v-list-item>
           </template>
 
            <v-list-item rounded="shaped" size="x-small" color="warning" class="customPrepend"
-            v-for="(topic, i) in topics"
+            v-for="(topic, i) in globalTopicNames"
             :key="i"
             prepend-icon="mdi-book-open-variant-outline"
             :title="topic"
@@ -93,12 +93,12 @@
               v-bind="props"
               prepend-icon="mdi-account-multiple"
               title="Consumer Groups"
-              @click="gotoGroups()"
+              @click="gotoRoute('Groups')"
             ></v-list-item>
           </template>
 
           <v-list-item rounded="shaped" size="x-small" color="warning" class="customPrepend"
-            v-for="(group, i) in groups"
+            v-for="(group, i) in globalGroupNames"
             :key="i"
             prepend-icon="mdi-account-file-text-outline"
             :title="group"
@@ -129,7 +129,7 @@
       <v-app-bar-title>Kafui</v-app-bar-title>
 
       <template v-slot:append>
-        <v-btn icon="mdi-cog" @click="gotoSetting"></v-btn>
+        <v-btn icon="mdi-cog" @click="gotoRoute('Connections')"></v-btn>
         <!-- <v-btn icon="mdi-magnify"></v-btn> -->
         <!-- <v-btn icon="mdi-dots-vertical"></v-btn> -->
         <v-menu>
@@ -183,6 +183,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import About from './components/About.vue';
 import { globalKafkaConfigNames, globalSetKafkaConfigs } from "./datas/global";
+import { globalBrokers, globalGroupNames, globalSetBrokers, globalTopicNames } from "./datas/kafka";
 import { GetKafkaConfig, GetKafkaConfigs } from "./wailsjs/go/backend/ConfigService";
 import { Init, ListBrokers, ListGroups, ListTopics } from "./wailsjs/go/backend/KafkaTool";
 import { backend } from "./wailsjs/go/models";
@@ -195,9 +196,6 @@ const router = useRouter();
 const route = useRoute(); 
 const drawer = ref(true);
 const rail = ref(false);
-var brokers: Array<backend.Broker> = ref<backend.Broker>([]);
-var topics: Array<string> = ref([]);
-var groups: Array<string> = ref([]);
 var about_dialog = ref(false);
 var connection_name = ref('Select kafka name');
 var connection_addr = ref('none');
@@ -230,7 +228,7 @@ const connect = () => {
   getBrokers();
   getTopics();
   getGroups();
-  gotoDashboard();
+  gotoRoute('Dashboard');
 }
 
 const getMyconfig = () => {
@@ -246,7 +244,7 @@ const getMyconfig = () => {
 const getBrokers = () => {
   ListBrokers().then((items: backend.Broker[]) => {
     console.log('Kafkatool.ListBrokers ', items);
-    brokers = items;
+    globalSetBrokers(items);
     kafkaConnected = 1;
     iconColor = "blue-darken-2";
     showSnackBar('get brokers success!', true);
@@ -261,7 +259,7 @@ const getBrokers = () => {
 const getTopics = () => {
   ListTopics().then((items: Array<string>) => {
     console.log('KafkaTool.ListTopics ', items);
-    topics = items
+    globalTopicNames.value = items;
   }).catch((err: string) => {
     console.error('KafkaTool.ListTopics', err);
     showSnackBar('get topics failed: ' + err, false);
@@ -271,88 +269,38 @@ const getTopics = () => {
 const getGroups = () => {
   ListGroups().then((items: Array<string>) => {
     console.log('KafkaTool.ListGroups ', items);
-    groups = items
+    globalGroupNames.value = items;
   }).catch((err: string) => {
     console.error('KafkaTool.ListGroups', err);
     showSnackBar('get groups failed: ' + err, false);
   });
 }
 
-const gotoDashboard = () => {
+const gotoRoute = (routeName: string) => {
   router.push({
-    name:'Dashboard',
-    query: {
-        num_brokers: brokers.length,
-        num_topics: topics.length,
-        num_groups: groups.length,
-        topics: topics,
-        groups: groups
-    }
-  });
-}
-
-const gotoZooKeeper = () => {
-  router.push({
-    name:'ZooKeeper',
+    name: routeName,
+    query: { }
   });
 }
 
 const gotoBroker = (broker: backend.Broker, i: number) => {
-  // console.log('选择 broker ', broker, i);
   router.push({
     name: 'Broker',
-    state: { broker: broker }
-  });
-}
-
-const gotoBrokers = () => {
-  router.push({
-    name: 'Brokers',
-    state: { brokers: brokers }
+    query: { broker_id: broker.id }
   });
 }
 
 const gotoTopic = (topic: string, i: number) => {
-  // console.log('选择 topic ', topic, i);
   router.push({
     name: 'Topic',
-    query: {
-        id: i,
-        topic: topic
-    }
-  });
-}
-
-const gotoTopics = () => {
-  router.push({
-    name: 'Topics',
-    query: { topics: topics }
+    query: { id: i, topic: topic }
   });
 }
 
 const gotoGroup = (group: string, i: number) => {
-  // console.log('选择 group ', group, i);
   router.push({
     name: 'Group',
-    query: {
-        id: i,
-        group: group
-    }
-  });
-}
-
-const gotoGroups = () => {
-  router.push({
-    name: 'Groups',
-    query: { groups: groups }
-  });
-}
-
-const gotoSetting = () => {
-  // setting_dialog.value = true;
-  router.push({
-    name: 'Connections',
-    query: { }
+    query: { id: i, group: group }
   });
 }
 

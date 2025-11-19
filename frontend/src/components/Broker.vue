@@ -55,7 +55,7 @@
 
         <v-window-item key="Config" value="Config">
           <v-container fluid>
-            <Config title="broker" :name="broker.id" />
+            <Config title="broker" :name="broker_id" />
           </v-container>
         </v-window-item>
 
@@ -65,18 +65,30 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { globalGetBroker } from "../datas/kafka";
+import { backend } from '../wailsjs/go/models';
 import Config from './Config.vue';
 
 
-// 使用 stat 传递页面参数
-let broker = window.history.state.broker;
-// console.log('window.history.state.broker ', broker);
+const { query, params } = useRoute();
+// console.log('ScanView1 { query, params } = useRoute() ', query, params);
+const broker_id: number = parseInt(query.broker_id as string);
+let broker = {} as backend.Broker;
+
 var breadcrumbs = ref([
   { title: 'Broker', disabled: false, },
-  { title: broker.id, disabled: false, }
+  { title: broker_id, disabled: false, }
 ]);
 let selectedTab = ref("Properties"); // 默认选中 Properties 页
+
+
+onMounted(() => {
+  const tmp = globalGetBroker(broker_id);
+  if (tmp != null) broker = tmp;
+});
 
 </script>
