@@ -54,8 +54,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadConfig failed: %s", err)
 	}
-	log.Infof("myconfig brokers %V", myconfig.Kafka.Brokers)
-	kafkatool = backend.NewKafkaTool(&myconfig.Kafka)
+	log.Infof("myconfig brokers %V", myconfig.KafkaConfigs[0].Brokers)
+	kafkatool = backend.NewKafkaTool(&myconfig.KafkaConfigs[0])
 
 	grumble.Main(App)
 }

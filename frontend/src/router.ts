@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Broker from './components/Broker.vue'
 import Brokers from './components/Brokers.vue'
+import Connections from './components/Connections.vue'
 import Dashboard from './components/Dashboard.vue'
 import Group from './components/Group.vue'
 import Groups from './components/Groups.vue'
@@ -29,6 +30,9 @@ const routes = [
     },
     { path: '/groups', name: 'Groups', component: Groups,
       props: true, mete: { title: 'groups' }
+    },
+    { path: '/connections', name: 'Connections', component: Connections,
+      props: true, mete: { title: 'connections' }
     },
     { path: '/kcat', name: 'Kcat', component: Kcat },
     { path: '/zk', name: 'ZooKeeper', component: ZooKeeper },

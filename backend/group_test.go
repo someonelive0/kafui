@@ -11,7 +11,7 @@ func TestGetGroupConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.KafkaConfigs[0])
 
 	configs, err := kafkatool.GetGroupConfig("testgroup")
 	if err != nil {
@@ -26,7 +26,7 @@ func TestGetGroupDesc(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.KafkaConfigs[0])
 
 	desc, err := kafkatool.GetGroupDesc("testgroup")
 	if err != nil {
@@ -41,7 +41,7 @@ func TestGetGroupOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.KafkaConfigs[0])
 
 	group_offsets, err := kafkatool.GetGroupOffset("testgroup")
 	if err != nil {
@@ -56,7 +56,7 @@ func TestSetGroupOffset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfig [%s] failed: %s", config_fileame, err)
 	}
-	kafkatool := NewKafkaTool(&myconfig.Kafka)
+	kafkatool := NewKafkaTool(&myconfig.KafkaConfigs[0])
 
 	err = kafkatool.SetGroupOffset("testgroup", "dnsTopic", 0, 1473)
 	if err != nil {

@@ -13,12 +13,12 @@ import (
 )
 
 // base on kafui.toml
-type Myconfig struct {
-	Filename  string      `toml:"-" json:"-"`
-	Title     string      `toml:"title" json:"title"`
-	License   string      `toml:"license" json:"license"`
-	Kafka     KafkaConfig `toml:"kafka" json:"kafka"`
-	Zookeeper ZkConfig    `toml:"zookeeper" json:"zookeeper"`
+type MyConfig struct {
+	Filename     string        `toml:"-" json:"-"`
+	Title        string        `toml:"title" json:"title"`
+	License      string        `toml:"license" json:"license"`
+	KafkaConfigs []KafkaConfig `toml:"kafka" json:"kafka"`
+	Zookeeper    ZkConfig      `toml:"zookeeper" json:"zookeeper"`
 }
 
 type KafkaConfig struct {
@@ -27,13 +27,30 @@ type KafkaConfig struct {
 	SaslMechanism string   `toml:"sasl_mechanism" json:"sasl_mechanism"` // "" or "SASL_PLAINTEXT"
 	User          string   `toml:"user" json:"user"`
 	Password      string   `toml:"password" json:"password"`
+	Timeout       int      `toml:"timeout" json:"timeout"`
 }
 
 type ZkConfig struct {
 	Hosts []string `toml:"hosts" json:"hosts"` // hosts = [ "localhost:2181" ]
 }
 
-func LoadConfig(filename string) (*Myconfig, error) {
+func NewKafkaConfig() *KafkaConfig {
+	return &KafkaConfig{
+		Name:          "default",
+		Brokers:       []string{"127.0.0.1:9092"},
+		SaslMechanism: "",
+		User:          "",
+		Password:      "",
+		Timeout:       10,
+	}
+}
+
+func (p *KafkaConfig) Dump() []byte {
+	b, _ := json.MarshalIndent(p, "", "  ")
+	return b
+}
+
+func LoadConfig(filename string) (*MyConfig, error) {
 	// check filename is exists
 	if _, err := os.Stat(filename); err != nil {
 		fp, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
@@ -44,25 +61,33 @@ func LoadConfig(filename string) (*Myconfig, error) {
 		fp.WriteString(CONFIG_FILE_TEMPLATE)
 	}
 
-	myconfig := &Myconfig{Filename: filename}
+	myconfig := &MyConfig{Filename: filename}
 	if _, err := toml.DecodeFile(filename, myconfig); err != nil {
 		return nil, err
 	}
 
 	// if password begin with "BASE64$...", then decode weith base64
-	if len(myconfig.Kafka.Password) > len(PASSWORD_PREFIX) && strings.Index(myconfig.Kafka.Password, PASSWORD_PREFIX) == 0 {
-		b, err := base64.StdEncoding.DecodeString(myconfig.Kafka.Password[7:])
-		if err != nil {
-			return nil, err
+	for i := range myconfig.KafkaConfigs {
+		tmp := myconfig.KafkaConfigs[i].Password
+		if len(tmp) > len(PASSWORD_PREFIX) &&
+			strings.Index(tmp, PASSWORD_PREFIX) == 0 {
+			b, err := base64.StdEncoding.DecodeString(tmp[len(PASSWORD_PREFIX):])
+			if err != nil {
+				return nil, err
+			}
+			myconfig.KafkaConfigs[i].Password = string(b)
 		}
-		myconfig.Kafka.Password = string(b)
 	}
 
 	return myconfig, nil
 }
 
 // save myconfig to filename
-func SaveConfig(myconfig *Myconfig, filename string) error {
+func SaveConfig(myconfig *MyConfig, filename string) error {
+	var tmpconfig = *myconfig // deep copy myconfig, ATTENTION this is not a deep copy of slice inside struct
+	tmpconfig.KafkaConfigs = make([]KafkaConfig, len(myconfig.KafkaConfigs))
+	copy(tmpconfig.KafkaConfigs, myconfig.KafkaConfigs)
+
 	var tmpfile = filename + ".tmp"
 	os.Remove(tmpfile)
 	fp, err := os.OpenFile(tmpfile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
@@ -74,10 +99,17 @@ func SaveConfig(myconfig *Myconfig, filename string) error {
 	fp.WriteString("\n\n\n")
 
 	// encode password with base64
-	myconfig.Kafka.Password = PASSWORD_PREFIX + base64.StdEncoding.EncodeToString([]byte(myconfig.Kafka.Password))
+	for i := range tmpconfig.KafkaConfigs {
+		tmp := tmpconfig.KafkaConfigs[i].Password
+		if len(tmp) > len(PASSWORD_PREFIX) &&
+			strings.Index(tmp, PASSWORD_PREFIX) == 0 {
+			continue
+		}
+		tmpconfig.KafkaConfigs[i].Password = PASSWORD_PREFIX + base64.StdEncoding.EncodeToString([]byte(tmp))
+	}
 
 	buf := new(bytes.Buffer)
-	if err = toml.NewEncoder(buf).Encode(myconfig); err != nil {
+	if err = toml.NewEncoder(buf).Encode(tmpconfig); err != nil {
 		return err
 	}
 	n, err := fp.Write(buf.Bytes())
@@ -98,7 +130,7 @@ func SaveConfig(myconfig *Myconfig, filename string) error {
 	return nil
 }
 
-func (p *Myconfig) Dump() []byte {
+func (p *MyConfig) Dump() []byte {
 	b, _ := json.MarshalIndent(p, "", "  ")
 	return b
 }
@@ -114,7 +146,7 @@ title = "Kafui"
 license = "Copyright @ 2024"
 	
 	
-[kafka]
+[[kafka]]
 	name = "localhost"
 	brokers = [ "127.0.0.1:9092" ]
 	# sasl mechanism should be empty or "SASL_PLAINTEXT",
@@ -122,6 +154,8 @@ license = "Copyright @ 2024"
 	sasl_mechanism = ""
 	user = ""
 	password = ""
+	# timeout for connect and read timeout in seconds, default 10 seconds
+	timeout = 10
 	
 [zookeeper]
 	hosts = [ "127.0.0.1:2181" ]

@@ -21,6 +21,29 @@
 
       <v-divider></v-divider>
 
+      <v-toolbar flat density="compact" height="50"
+        rounded="shaped" border
+        color="grey-lighten-1" class="pl-4 ma-0">
+        <v-tooltip text="Connect" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" density="compact" size="small" icon="mdi-connection"
+              @click=""></v-btn>
+          </template>
+        </v-tooltip>
+        <!-- <v-tooltip text="导出" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" density="compact" size="small" icon="mdi-export" 
+              @click="gotoRoute('Connections')"></v-btn>
+          </template>
+        </v-tooltip> -->
+        <v-select
+          variant="underlined"
+          class="ma-2 pa-2"
+          density="default"
+          :items="globalKafkaConfigNames"
+        ></v-select>
+      </v-toolbar>
+
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" value="inbox" rounded="shaped" size="x-small" class="customPrepend"
           @click="gotoDashboard" ></v-list-item>
@@ -106,7 +129,7 @@
       <v-app-bar-title>Kafui</v-app-bar-title>
 
       <template v-slot:append>
-        <v-btn icon="mdi-cog" @click="setting"></v-btn>
+        <v-btn icon="mdi-cog" @click="gotoSetting"></v-btn>
         <!-- <v-btn icon="mdi-magnify"></v-btn> -->
         <!-- <v-btn icon="mdi-dots-vertical"></v-btn> -->
         <v-menu>
@@ -141,10 +164,6 @@
 
   </v-layout>
 
-  <v-dialog v-model="setting_dialog" width="600">
-    <Setting :myconfig="myconfig" @settingCancel="settingCancel" @settingSave="settingSave"/>
-  </v-dialog>
-
   <v-dialog v-model="about_dialog" width="auto">
     <About />
   </v-dialog>
@@ -163,7 +182,8 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import About from './components/About.vue';
-import Setting from './components/Setting.vue';
+import { globalKafkaConfigNames, globalSetKafkaConfigs } from "./datas/global";
+import { GetKafkaConfigs } from "./wailsjs/go/backend/ConfigService";
 import { backend } from "./wailsjs/go/models";
 
 
@@ -176,11 +196,10 @@ const rail = ref(false);
 var brokers: Array<backend.Broker> = ref<backend.Broker>([]);
 var topics: Array<string> = ref([]);
 var groups: Array<string> = ref([]);
-var setting_dialog = ref(false);
 var about_dialog = ref(false);
 var myconfig: backend.Myconfig = reactive<backend.Myconfig>(null);
-var connection_name = ref('');
-var connection_addr = ref('');
+var connection_name = ref('Select kafka name');
+var connection_addr = ref('none');
 let snackbar = ref(false);
 let snacktext = '';
 
@@ -196,14 +215,15 @@ const refresh = () => {
 }
 
 const getMyconfig = () => {
-  window.go.main.App.GetMyconfig().then((item: backend.Myconfig) => {
-    console.log('App.GetMyconfig ', item);
-    myconfig = item;
-    connection_name.value = item.kafka.name;
-    connection_addr.value = item.kafka.brokers[0];
-  })
-  .catch((err: string) => {
-    console.error('KafkaTool.getMyconfig', err);
+  GetKafkaConfigs().then((kafkaconfigs : backend.KafkaConfig[]) => {
+    console.log('ConfigService.GetConnConfigs', kafkaconfigs);
+    globalSetKafkaConfigs(kafkaconfigs);
+    snacktext = 'GetConnConfigs success!';
+    snackbar.value = true;
+  }).catch((err: string) => {
+    console.error('ConfigService.GetConnConfigs', err);
+    snacktext = 'ConfigService.GetConnConfigs faile: '+ err;
+    snackbar.value = true;
   });
 }
 
@@ -331,23 +351,12 @@ const gotoGroups = () => {
   });
 }
 
-const setting = () => {
-  setting_dialog.value = true;
-}
-const settingCancel = () => {
-  setting_dialog.value = false;
-}
-const settingSave = (item: backend.Myconfig) => {
-  console.log('settingSave ', item);
-  window.go.main.App.SetMyconfig(item).then(() => {
-    snacktext = 'Save setting success!';
-    snackbar.value = true;
-    getMyconfig();
-  })
-  .catch((err: string) => {
-    console.error('KafkaTool.ListGroups', err);
+const gotoSetting = () => {
+  // setting_dialog.value = true;
+  router.push({
+    name: 'Connections',
+    query: { }
   });
-  setting_dialog.value = false;
 }
 
 const about = () => {

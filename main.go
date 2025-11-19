@@ -30,6 +30,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := NewApp()
+	configService := &app.configService
 	kafkatool := &app.kafkatool
 	zktool := &app.zktool
 
@@ -57,6 +58,7 @@ func main() {
 		OnShutdown:         app.shutdown,
 		Bind: []interface{}{
 			app,
+			configService,
 			kafkatool,
 			zktool,
 		},
