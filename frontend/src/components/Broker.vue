@@ -81,7 +81,7 @@ let broker = {} as backend.Broker;
 
 var breadcrumbs = ref([
   { title: 'Broker', disabled: false, },
-  { title: broker_id, disabled: false, }
+  { title: broker_id.toString(), disabled: false, }
 ]);
 let selectedTab = ref("Properties"); // 默认选中 Properties 页
 

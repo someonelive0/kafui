@@ -138,12 +138,13 @@ const test = () => {
     snackbar.value = false;
     if (!valid()) return;
 
-    const kafka = {
+    const kafka: backend.KafkaConfig = {
         name: name.value,
         brokers: brokers.value.split(','),
         sasl_mechanism: sasl_mechanism.value == 'None' ? '' : sasl_mechanism.value,
         user: user.value,
         password: password.value,
+        timeout: 10
     }
 
     TestKafka(kafka).then((leader: backend.Broker) => { // window.go.main.App.TestKafka

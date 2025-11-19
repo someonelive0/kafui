@@ -122,7 +122,8 @@ const valid = () => {
     }
     // 由于编辑框会把[]string 变成 string，所以需要转换一下
     if (typeof newKafkaConfig.value.brokers == 'string') {
-        const brokers = newKafkaConfig.value.brokers.split(',');
+        const tmp = newKafkaConfig.value.brokers as string;
+        const brokers = tmp.split(',');
         newKafkaConfig.value.brokers = brokers;
     }
     return true

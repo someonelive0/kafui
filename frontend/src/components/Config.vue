@@ -113,7 +113,7 @@ const headers: Array<object> = [
 let configs: Array<backend.ConfigEntry> = reactive([]);
 let loading = ref(true);
 let search = ref('');
-const sortBy = ref([{ key: 'config_name', order: 'asc' }]);
+const sortBy = ref<Object[]>([{ key: 'config_name', order: 'asc' }]);
 let snackbar = ref(false);
 let snacktext = '';
 

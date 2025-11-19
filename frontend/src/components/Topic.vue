@@ -60,7 +60,7 @@ import TopicProperties from './TopicProperties.vue';
 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
-const topic = ref(query.topic);
+const topic = ref(query.topic as string);
 var breadcrumbs = ref([
   { title: 'Topic', disabled: false, },
   { title: topic, disabled: false, }

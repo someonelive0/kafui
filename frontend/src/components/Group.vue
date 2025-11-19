@@ -52,7 +52,7 @@ import GroupProperties from './GroupProperties.vue';
 
 const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
-const group = ref(query.group);
+const group = ref(query.group as string);
 var breadcrumbs = ref([
   { title: 'Consumer Group', disabled: false, },
   { title: group, disabled: false, }

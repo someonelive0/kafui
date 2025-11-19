@@ -67,10 +67,10 @@
       </tbody>
     </v-table>
 
-    <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
+    <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
       {{ snacktext }}
       <template v-slot:actions>
-        <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
+        <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
       </template>
     </v-snackbar>
   </v-card>
@@ -78,23 +78,25 @@
 
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from "vue";
+import { DeleteTopic, GetTopicPartition } from "../wailsjs/go/backend/KafkaTool";
 import { backend } from "../wailsjs/go/models";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
 let number = ref(0);
-let partitions: Array<backend.Partition> = ref([]);
+let partitions = ref<backend.Partition[]>([]);
 let loading = true;
 let dialog = ref(false);
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 
 onMounted(() => {
   refresh();
 });
 
 const refresh = () => {
-  window.go.backend.KafkaTool.GetTopicPartition(name).then((items: Array<backend.Partition>) => {
+  GetTopicPartition(name).then((items: Array<backend.Partition>) => {
     // console.log('Kafkatool.GetTopicPartition ', items);
     partitions.value = items;
     number.value = 0;
@@ -103,9 +105,8 @@ const refresh = () => {
       total = total + items[i].number;
     }
     number.value = total;
-  })
-  .catch((err: string) => {
-    console.error('Kafkatool.GetTopicPartition ', err);
+  }).catch((err: string) => {
+    showSnackBar('GetTopicPartition failed: ' + err, false);
   });
   loading = false;
 };
@@ -122,17 +123,18 @@ const printReplicas = (replicas: Array<backend.Broker>): string => {
 }
 
 const deleteTopic = () => {
-  // console.log('deleteTopic ', name);
-  window.go.backend.KafkaTool.DeleteTopic(name).then(() => {
-    snacktext = 'delete topic ' + name + ' success!';
-    snackbar.value = true;
+  DeleteTopic(name).then(() => {
+    showSnackBar('delete topic ' + name + ' success!', false);
     dialog.value = false;
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.WriteMsg ', err);
-    snacktext = 'delete topic ' + name + ' failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('delete topic ' + name + ' failed: ' + err, false);
   });
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>
