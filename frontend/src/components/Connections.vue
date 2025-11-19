@@ -104,11 +104,11 @@
     </v-dialog>
 
     <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
-    {{ snacktext }}
-    <template v-slot:actions>
-      <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
-    </template>
-  </v-snackbar>
+      {{ snacktext }}
+      <template v-slot:actions>
+        <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 
   <v-dialog v-model="configDialog" width="600">
@@ -179,7 +179,7 @@ const deleteConn = () => {
     globalDeleteKafkaConfig(deleteKafkaName.value);
     newDialog.value = false;
   }).catch((err: string) => {
-    showSnackBar('删除连接配置失败:: '+ err, false);
+    showSnackBar('Delete kafka connection failed: '+ err, false);
   });
 }
 

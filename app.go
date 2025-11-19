@@ -31,18 +31,8 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	runtime.LogInfof(ctx, "============================ START %s", time.Now().Format("2006-01-02 15:04:05"))
 
-	// myconfig, err := backend.LoadConfig(backend.DEFAULT_CONFIG_FILE)
-	// if err != nil {
-	// 	runtime.LogErrorf(ctx, "LoadConfig failed: %s", err)
-	// } else {
-	// 	a.myconfig = myconfig
-	// 	runtime.LogInfof(ctx, "LoadConfig of kakfa name=%s, brokers=%v", myconfig.Kafka.Name, myconfig.Kafka.Brokers)
-	// }
-
 	a.configService.Appctx = &a.ctx
 	a.configService.Filename = "kafui.toml"
-
-	// a.kafkatool.KafkaConfig = &myconfig.Kafka
 	a.kafkatool.Appctx = &a.ctx
 }
 

@@ -31,17 +31,18 @@ func NewKafkaTool(KafkaConfig *KafkaConfig) *KafkaTool {
 	return kafkatool
 }
 
-func (p *KafkaTool) Init(KafkaConfig *KafkaConfig) {
-	p.KafkaConfig = KafkaConfig
+func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
+	fmt.Printf("Init %#v\n", kafkaConfig)
+	p.KafkaConfig = kafkaConfig
 	if p.Appctx != nil {
 		runtime.LogInfof(*p.Appctx, "set kafka config SaslMechanism: %#v", p.KafkaConfig.SaslMechanism)
 	}
 
 	// init sasl mechanism
-	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
 		p.mechanism = &plain.Mechanism{
-			Username: KafkaConfig.User,
-			Password: KafkaConfig.Password,
+			Username: kafkaConfig.User,
+			Password: kafkaConfig.Password,
 		}
 	} else {
 		p.mechanism = nil

@@ -27,7 +27,7 @@
         <v-tooltip text="Connect" location="bottom">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" density="compact" size="small" icon="mdi-connection"
-              @click=""></v-btn>
+              @click="connect()"></v-btn>
           </template>
         </v-tooltip>
         <!-- <v-tooltip text="导出" location="bottom">
@@ -36,7 +36,7 @@
               @click="gotoRoute('Connections')"></v-btn>
           </template>
         </v-tooltip> -->
-        <v-select
+        <v-select v-model="currentKafkaName"
           variant="underlined"
           class="ma-2 pa-2"
           density="default"
@@ -146,7 +146,7 @@
 
     <!-- <v-main class="d-flex align-center justify-center" style="min-height: 300px;"> -->
     <v-main style="min-height: 300px;">
-      <router-view :key="route.query"/>
+      <router-view :key="$route.fullPath"/>
     </v-main>
 
     <!-- <v-footer name="footer" density="compact" app
@@ -168,10 +168,10 @@
     <About />
   </v-dialog>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
-      <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
+      <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
     </template>
   </v-snackbar>
 
@@ -179,14 +179,16 @@
 
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import About from './components/About.vue';
 import { globalKafkaConfigNames, globalSetKafkaConfigs } from "./datas/global";
-import { GetKafkaConfigs } from "./wailsjs/go/backend/ConfigService";
+import { GetKafkaConfig, GetKafkaConfigs } from "./wailsjs/go/backend/ConfigService";
+import { Init, ListBrokers, ListGroups, ListTopics } from "./wailsjs/go/backend/KafkaTool";
 import { backend } from "./wailsjs/go/models";
 
 
+let currentKafkaName = ref('');
 let kafkaConnected = 0;
 let iconColor = "grey";
 const router = useRouter(); 
@@ -197,87 +199,82 @@ var brokers: Array<backend.Broker> = ref<backend.Broker>([]);
 var topics: Array<string> = ref([]);
 var groups: Array<string> = ref([]);
 var about_dialog = ref(false);
-var myconfig: backend.Myconfig = reactive<backend.Myconfig>(null);
 var connection_name = ref('Select kafka name');
 var connection_addr = ref('none');
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 
 onMounted(() => {
-  getMyconfig();
+  refresh();
 });
 
 const refresh = () => {
-  if (myconfig == null) getMyconfig();
+  getMyconfig();
+}
+
+const connect = () => {
+  if (currentKafkaName.value.length == 0) {
+    showSnackBar('Please select kafka connection name', false);
+    return;
+  }
+  GetKafkaConfig(currentKafkaName.value).then((kafkaconfig: backend.KafkaConfig) => {
+    // console.log('ConfigService.GetKafkaConfig', kafkaconfig);
+    connection_name.value = kafkaconfig.name;
+    connection_addr.value = kafkaconfig.brokers.join();
+    Init(kafkaconfig); // 这里重新配置kafkatool的连接信息
+  }).catch((err: string) => {
+    showSnackBar('ConfigService.GetKafkaConfig failed: '+ err, false);
+    return;
+  })
   getBrokers();
   getTopics();
   getGroups();
+  gotoDashboard();
 }
 
 const getMyconfig = () => {
   GetKafkaConfigs().then((kafkaconfigs : backend.KafkaConfig[]) => {
-    console.log('ConfigService.GetKafkaConfigs', kafkaconfigs);
+    // console.log('ConfigService.GetKafkaConfigs', kafkaconfigs);
     globalSetKafkaConfigs(kafkaconfigs);
-    snacktext = 'GetKafkaConfigs success!';
-    snackbar.value = true;
+    showSnackBar('GetKafkaConfigs success!', true);
   }).catch((err: string) => {
-    console.error('ConfigService.GetKafkaConfigs', err);
-    snacktext = 'ConfigService.GetKafkaConfigs faile: '+ err;
-    snackbar.value = true;
+    showSnackBar('ConfigService.GetKafkaConfigs failed: '+ err, false);
   });
 }
 
 const getBrokers = () => {
-  // window.go.backend.ZkTool.ListBrokers(zk_hosts).then(items => {
-  //   console.log('ZkTool.ListBrokers ', items);
-  //   brokers = items
-  // })
-  // .catch(err => {
-  //   console.error('ZkTool.ListBrokers ', err);
-  // });
-
-  window.go.backend.KafkaTool.ListBrokers().then((items: Array<backend.Broker>) => {
-    // console.log('Kafkatool.ListBrokers ', items);
+  ListBrokers().then((items: backend.Broker[]) => {
+    console.log('Kafkatool.ListBrokers ', items);
     brokers = items;
-    snacktext = 'get brokers success!';
-    snackbar.value = true;
     kafkaConnected = 1;
     iconColor = "blue-darken-2";
-  })
-  .catch((err: string) => {
+    showSnackBar('get brokers success!', true);
+  }).catch((err: string) => {
     console.error('Kafkatool.ListBrokers ', err);
-    snacktext = 'get brokers failed: ' + err;
-    snackbar.value = true;
+    showSnackBar('get brokers failed: ' + err, false);
     kafkaConnected = 0;
     iconColor = "grey";
   });
 }
 
 const getTopics = () => {
-  // window.go.backend.ZkTool.ListTopics(zk_hosts).then(items => {
-  //   console.log('ZkTool.ListTopics ', items);
-  //   topics = items
-  // })
-  // .catch(err => {
-  //   console.error('ZkTool.ListTopics', err);
-  // });
-
-  window.go.backend.KafkaTool.ListTopics().then((items: Array<string>) => {
-    // console.log('KafkaTool.ListTopics ', items);
+  ListTopics().then((items: Array<string>) => {
+    console.log('KafkaTool.ListTopics ', items);
     topics = items
-  })
-  .catch((err: string) => {
+  }).catch((err: string) => {
     console.error('KafkaTool.ListTopics', err);
+    showSnackBar('get topics failed: ' + err, false);
   });
 }
 
 const getGroups = () => {
-  window.go.backend.KafkaTool.ListGroups().then((items: Array<string>) => {
-    // console.log('KafkaTool.ListGroups ', items);
+  ListGroups().then((items: Array<string>) => {
+    console.log('KafkaTool.ListGroups ', items);
     groups = items
-  })
-  .catch((err: string) => {
+  }).catch((err: string) => {
     console.error('KafkaTool.ListGroups', err);
+    showSnackBar('get groups failed: ' + err, false);
   });
 }
 
@@ -361,6 +358,13 @@ const gotoSetting = () => {
 
 const about = () => {
   about_dialog.value = true;
+}
+
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
 }
 </script>
 
