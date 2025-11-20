@@ -209,7 +209,7 @@ func (p *KafkaTool) WriteMsg(topic string, key, value string) error {
 		Addr:         kafka.TCP(p.KafkaConfig.Brokers...),
 		Topic:        topic,
 		Transport:    p.sharedTransport,
-		Balancer:     &kafka.LeastBytes{}, // 指定分区的balancer模式为最小字节分布
+		Balancer:     &kafka.RoundRobin{}, //&kafka.LeastBytes{}, // 指定分区的balancer模式为最小字节分布
 		RequiredAcks: kafka.RequireAll,    // ack模式
 		Async:        false,               // 同步
 		WriteTimeout: time.Second * 5,

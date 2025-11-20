@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
@@ -314,4 +315,99 @@ func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 	leader := NewBrokerFromSegmentio(&controller)
 
 	return leader, err
+}
+
+/*
+	static functions to get ApiVersions, looks like
+
+[
+{"ApiKey":0,"MinVersion":0,"MaxVersion":9},
+{"ApiKey":1,"MinVersion":0,"MaxVersion":13},
+{"ApiKey":2,"MinVersion":0,"MaxVersion":7},
+{"ApiKey":3,"MinVersion":0,"MaxVersion":12},
+{"ApiKey":4,"MinVersion":0,"MaxVersion":7},
+{"ApiKey":5,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":6,"MinVersion":0,"MaxVersion":8},
+{"ApiKey":7,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":8,"MinVersion":0,"MaxVersion":8},
+{"ApiKey":9,"MinVersion":0,"MaxVersion":8},
+{"ApiKey":10,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":11,"MinVersion":0,"MaxVersion":9},
+{"ApiKey":12,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":13,"MinVersion":0,"MaxVersion":5},
+{"ApiKey":14,"MinVersion":0,"MaxVersion":5},
+{"ApiKey":15,"MinVersion":0,"MaxVersion":5},
+{"ApiKey":16,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":17,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":18,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":19,"MinVersion":0,"MaxVersion":7},
+{"ApiKey":20,"MinVersion":0,"MaxVersion":6},
+{"ApiKey":21,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":22,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":23,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":24,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":25,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":26,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":27,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":28,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":29,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":30,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":31,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":32,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":33,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":34,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":35,"MinVersion":0,"MaxVersion":4},
+{"ApiKey":36,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":37,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":38,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":39,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":40,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":41,"MinVersion":0,"MaxVersion":3},
+{"ApiKey":42,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":43,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":44,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":45,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":46,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":47,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":48,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":49,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":50,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":51,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":56,"MinVersion":0,"MaxVersion":2},
+{"ApiKey":57,"MinVersion":0,"MaxVersion":1},
+{"ApiKey":58,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":60,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":61,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":65,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":66,"MinVersion":0,"MaxVersion":0},
+{"ApiKey":67,"MinVersion":0,"MaxVersion":0} ]
+*/
+func ApiVersions(kafkaConfig *KafkaConfig) (string, error) {
+	var mechanism sasl.Mechanism = nil
+	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+		mechanism = &plain.Mechanism{
+			Username: kafkaConfig.User,
+			Password: kafkaConfig.Password,
+		}
+	}
+
+	dialer := &kafka.Dialer{
+		Timeout:       time.Duration(kafkaConfig.Timeout) * time.Second,
+		DualStack:     true,
+		SASLMechanism: mechanism,
+	}
+
+	conn, err := dialer.DialContext(context.Background(), "tcp", kafkaConfig.Brokers[0])
+	if err != nil {
+		return "", err
+	}
+	defer conn.Close()
+
+	apiVersions, err := conn.ApiVersions()
+	if err != nil {
+		return "", err
+	}
+	b, _ := json.Marshal(apiVersions)
+
+	return string(b), err
 }

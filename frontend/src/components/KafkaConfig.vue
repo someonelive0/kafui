@@ -55,7 +55,7 @@
             <v-col cols="4" md="4" sm="4">Timeout:</v-col>
             <v-col cols="4" md="4" sm="4">
                 <v-text-field density="compact"
-                  bg-color="lime-lighten-4" prepend-inner-icon="mdi-clock-time-five"
+                  bg-color="blue-grey-lighten-5" prepend-inner-icon="mdi-clock-time-five"
                   label="Timeout" v-model="newKafkaConfig.timeout"></v-text-field>
             </v-col>
         </v-row>
@@ -83,6 +83,7 @@
     </v-snackbar>
 </template>
 
+
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from "vue";
 import { globalUpdateKafkaConfig } from "../datas/global";
@@ -92,7 +93,7 @@ import { backend } from "../wailsjs/go/models";
 
 // 属性绑定，参考 <KafkaConfig :kafka-name="kafkaName" />
 const { kafkaName } = defineProps(['kafkaName']); // 可以简写 解构
-console.log('KafkaConfig kafka-name', kafkaName);
+// console.log('KafkaConfig kafka-name', kafkaName);
 
 const showpwd = ref(false);
 let snackbar = ref(false);
@@ -160,12 +161,17 @@ const save = () => {
 const test = () => {
     if (!valid()) return;
 
-    TestKafkaConfig(newKafkaConfig.value).then((leader: backend.Broker) => { // window.go.main.App.TestKafka
+    TestKafkaConfig(newKafkaConfig.value).then((leader: backend.Broker) => {
         showSnackBar('Test connection success! Leader is ' + leader.host + ':' + leader.port, true);
-    })
-    .catch((err: string) => {
+    }).catch((err: string) => {
         showSnackBar('Test connection faile: ' + err, false);
     });
+
+    // GetApiVersions(newKafkaConfig.value).then((versions: string) => {
+    //     console.log("ApiVersions: "+versions);
+    // }).catch((err: string) => {
+    //     console.log("GetApiVersions failed: "+err);
+    // });
 }
 
 const showSnackBar = (text: string, success: boolean) => {

@@ -40,14 +40,14 @@ func (p *ConfigService) GetKafkaConfig(name string) (*KafkaConfig, error) {
 			return &v, nil
 		}
 	}
-	return nil, fmt.Errorf("没有找到配置项 '%s'", name)
+	return nil, fmt.Errorf("not found connection '%s'", name)
 }
 
 func (p *ConfigService) AddKafkaConfig(name, templateName string) (*KafkaConfig, error) {
 	newKafkaConfig := NewKafkaConfig()
 	for _, v := range p.Myconfig.KafkaConfigs {
 		if v.Name == name {
-			return nil, fmt.Errorf("配置项 '%s' 已经存在", name)
+			return nil, fmt.Errorf("connection '%s' had existed", name)
 		}
 		if v.Name == templateName {
 			*newKafkaConfig = v
@@ -70,7 +70,7 @@ func (p *ConfigService) UpdateKafkaConfig(kafkaConfig *KafkaConfig) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("没有找到配置项 '%s'", kafkaConfig.Name)
+	return fmt.Errorf("not found connection '%s'", kafkaConfig.Name)
 }
 
 func (p *ConfigService) DeleteKafkaConfig(name string) error {
@@ -81,7 +81,7 @@ func (p *ConfigService) DeleteKafkaConfig(name string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("没有找到配置项 '%s'", name)
+	return fmt.Errorf("not found connection '%s'", name)
 }
 
 // test conn config wether can connect database
@@ -97,5 +97,18 @@ func (p *ConfigService) TestKafkaConfig(kafkaConfig *KafkaConfig) (*Broker, erro
 		}
 	}
 
-	return nil, fmt.Errorf("没有找到配置项 '%s'", kafkaConfig.Name)
+	return nil, fmt.Errorf("not found connection '%s'", kafkaConfig.Name)
+}
+
+func (p *ConfigService) GetApiVersions(kafkaConfig *KafkaConfig) (string, error) {
+	for _, v := range p.Myconfig.KafkaConfigs {
+		if v.Name == kafkaConfig.Name {
+
+			versions, err := ApiVersions(kafkaConfig)
+			// fmt.Printf("brokers: %v\n", brokers)
+			return versions, err
+		}
+	}
+
+	return "", fmt.Errorf("not found connection '%s'", kafkaConfig.Name)
 }

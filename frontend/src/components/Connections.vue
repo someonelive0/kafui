@@ -158,7 +158,7 @@ const addClick = () => {
 }
 
 const rowEdit = (row : backend.KafkaConfig) => {
-  console.log("rowEdit item: ", row);
+  // console.log("rowEdit item: ", row);
   selectedKafkaName.value = row.name;
   configDialog.value = true;
 }

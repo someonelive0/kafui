@@ -190,6 +190,12 @@ let snackcolor = 'deep-purple-darken-4';
 
 onMounted(() => {
   refresh();
+
+  // show About at startup, close it after 3 seconds
+  about_dialog.value = true;
+  const tmptimer = setTimeout(() => {
+    about_dialog.value = false;
+  }, 3000);
 });
 
 const refresh = () => {
