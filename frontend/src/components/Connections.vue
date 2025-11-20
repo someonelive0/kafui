@@ -3,7 +3,7 @@
     <v-card flat>
       <v-card-title class="d-flex align-center pe-2">
         <v-icon icon="mdi-list-box-outline"></v-icon> &nbsp;
-          Kafka Connection Config items {{ globalKafkaConfigs.length }}
+          Kafka Connections: {{ globalKafkaConfigs.length }}
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"

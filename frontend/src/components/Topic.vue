@@ -62,7 +62,7 @@ const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
 const topic = ref(query.topic as string);
 var breadcrumbs = ref([
-  { title: 'Topic', disabled: false, },
+  { title: 'Topic', disabled: false, href: '#/topics', },
   { title: topic, disabled: false, }
 ]);
 

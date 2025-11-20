@@ -54,7 +54,7 @@ const { query, params } = useRoute();
 // console.log('{ query, params } = useRoute() ', query, params);
 const group = ref(query.group as string);
 var breadcrumbs = ref([
-  { title: 'Consumer Group', disabled: false, },
+  { title: 'Consumer Group', disabled: false, href: '#/groups', },
   { title: group, disabled: false, }
 ]);
 let selectedTab = ref("Properties"); // 默认选中 Properties 页

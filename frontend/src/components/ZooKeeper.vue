@@ -17,19 +17,17 @@
                 v-model="tree"
                 :items="items"
                 :search="search"
-                :opened="initiallyOpen"
+                v-model:opened="open"
                 item-key="name"
                 activatable
                 open-on-click
                 density="compact"
             >
-                <template v-slot:prepend="{ item, open }">
+                <template v-slot:prepend="{ item, isOpen }">
                 <v-icon v-if="!item.file">
-                    {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+                    {{ isOpen ? 'mdi-folder-open' : 'mdi-folder' }}
                 </v-icon>
-                <v-icon v-else>
-                    {{ files[item.file] }}
-                </v-icon>
+                <v-icon v-else :icon="files[item.file as keyof typeof files]"></v-icon>
                 </template>
             </v-treeview>
           </v-card>
@@ -46,13 +44,13 @@
   </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineProps } from "vue"
-import { VTreeview } from 'vuetify/labs/VTreeview'
+import { ref, shallowRef } from "vue";
+import { VTreeview } from 'vuetify/labs/VTreeview';
 
 
 let search = ref('');
-const initiallyOpen = ['public'];
-const files = {
+const open = shallowRef(['public'])
+const files = shallowRef({
     html: 'mdi-language-html5',
     js: 'mdi-nodejs',
     json: 'mdi-code-json',
@@ -61,7 +59,7 @@ const files = {
     png: 'mdi-file-image',
     txt: 'mdi-file-document-outline',
     xls: 'mdi-file-excel',
-};
+});
 const tree = ref([]);
 const items = [
     {

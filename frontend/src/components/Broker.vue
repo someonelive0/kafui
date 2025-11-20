@@ -80,7 +80,7 @@ const broker_id: number = parseInt(query.broker_id as string);
 let broker = {} as backend.Broker;
 
 var breadcrumbs = ref([
-  { title: 'Broker', disabled: false, },
+  { title: 'Broker', disabled: false, href: '#/brokers', },
   { title: broker_id.toString(), disabled: false, }
 ]);
 let selectedTab = ref("Properties"); // 默认选中 Properties 页

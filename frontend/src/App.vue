@@ -24,7 +24,7 @@
       <v-toolbar flat density="compact" height="50"
         rounded="shaped" border
         color="grey-lighten-1" class="pl-4 ma-0">
-        <v-tooltip text="Refresh" location="bottom">
+        <v-tooltip text="Refresh config" location="bottom">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" density="compact" size="small" icon="mdi-apache-kafka"
               @click="refresh()"></v-btn>
@@ -131,7 +131,6 @@
       <template v-slot:append>
         <v-btn icon="mdi-cog" @click="gotoRoute('Connections')"></v-btn>
         <!-- <v-btn icon="mdi-magnify"></v-btn> -->
-        <!-- <v-btn icon="mdi-dots-vertical"></v-btn> -->
         <v-menu>
             <template v-slot:activator="{ props }">
               <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
@@ -144,23 +143,9 @@
       </template>
     </v-app-bar>
 
-    <!-- <v-main class="d-flex align-center justify-center" style="min-height: 300px;"> -->
     <v-main style="min-height: 300px;">
       <router-view :key="$route.fullPath"/>
     </v-main>
-
-    <!-- <v-footer name="footer" density="compact" app
-      class="bg-teal text-center d-flex flex-column"
-    >
-      <div class="bg-teal d-flex w-100 align-center px-4">
-        {{ new Date().getFullYear() }} — <strong>Kafui</strong>
-
-        <v-spacer></v-spacer>
-        <v-icon icon="mdi-home" size="x-small" />
-        <v-icon icon="mdi-calendar" size="x-small" />
-        <v-icon icon="mdi-paperclip" size="x-small" />
-      </div>
-    </v-footer> -->
 
   </v-layout>
 
@@ -243,6 +228,7 @@ const getMyconfig = () => {
   GetKafkaConfigs().then((kafkaconfigs : backend.KafkaConfig[]) => {
     // console.log('ConfigService.GetKafkaConfigs', kafkaconfigs);
     globalSetKafkaConfigs(kafkaconfigs);
+    if (kafkaconfigs.length > 0) currentKafkaName.value = kafkaconfigs[0].name;
     showSnackBar('GetKafkaConfigs success!', true);
   }).catch((err: string) => {
     showSnackBar('ConfigService.GetKafkaConfigs failed: '+ err, false);
@@ -254,7 +240,7 @@ const getBrokers = () => {
     // console.log('Kafkatool.ListBrokers ', items);
     globalSetBrokers(items);
     kafkaConnected = 1;
-    iconColor = "blue-darken-2";
+    iconColor = "blue-darken-1";
     showSnackBar('get brokers success!', true);
   }).catch((err: string) => {
     // console.error('Kafkatool.ListBrokers ', err);
@@ -346,7 +332,7 @@ list-item__prepend>.v-icon~.v-list-item__spacer, .v-list-item__prepend>.v-toolti
 
 /* change connection color by myself */
 .active-connection {
-  background-color:hwb(180 52% 15%) !important;
+  background-color:hwb(200 70% 5%) !important;
   /* Change this to the color you want */
   color: #110000 !important;
   /* Change the text color to match the background color */
