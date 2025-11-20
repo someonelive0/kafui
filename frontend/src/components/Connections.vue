@@ -14,7 +14,7 @@
           single-line
           density="compact"
           clearable
-        ><v-tooltip activator="parent" location="bottom">过滤</v-tooltip>
+        ><v-tooltip activator="parent" location="bottom">Filter</v-tooltip>
         </v-text-field>&nbsp;
         <!-- <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp; -->
         <v-tooltip text="New Kafka Connection" location="bottom">
@@ -56,41 +56,41 @@
     <v-dialog v-model="newDialog" width="600">
       <v-card
         max-width="500"
-        text="输入连接名称，可选择已有配置作为模板。然后在左侧菜单项进入连接后修改具体配置."
-        title="创建新的连接"
+        text="Inuput connection name, can select existed conntion as template. Then change items in end of list in table."
+        title="Create new kafka connection"
       >
         <template v-slot:prepend>
           <v-icon color="green" icon="mdi-pen-plus"></v-icon>
         </template>
         <v-container fluid>
           <v-row dense class="d-flex align-center">
-            <v-col cols="5" md="5" sm="5">配置名称 *:</v-col>
+            <v-col cols="5" md="5" sm="5">Connectin Name *:</v-col>
             <v-col cols="7" md="7" sm="7">
                 <v-text-field hide-details="auto" v-model="newKafkaName" placeholder="mydb"
-                  persistent-hint hint="* 自定义数据库连接名称"></v-text-field>
+                  persistent-hint hint="* Self define connectin name"></v-text-field>
             </v-col>
           </v-row>
           <v-row dense class="d-flex align-center">
-            <v-col cols="5" md="5" sm="5">配置模板 :</v-col>
+            <v-col cols="5" md="5" sm="5">Use Template :</v-col>
             <v-col cols="7" md="7" sm="7">
-              <v-select density="default" label="已有连接名称"
+              <v-select density="default" label="Existed conntions"
                 :items="tplNames" required v-model="dupName"
-                persistent-hint hint="从已有配置复制"></v-select>
+                persistent-hint hint="Copy from existed conntions"></v-select>
             </v-col>
           </v-row>
         </v-container>
         <template v-slot:actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue-darken-4" rounded="0" variant="outlined" text="取消" @click="newDialog = false"></v-btn>
-          <v-btn color="blue-darken-4" rounded="0" variant="flat" text="创建" @click="createConn"></v-btn>
+          <v-btn color="blue-darken-4" rounded="0" variant="outlined" text="Cancel" @click="newDialog = false"></v-btn>
+          <v-btn color="blue-darken-4" rounded="0" variant="flat" text="Create" @click="createConn"></v-btn>
         </template>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="deleteDialog" max-width="500" >
       <v-card
-        text="这个数据库连接配置将会被删除，并且丢失该配置所有数据"
-        :title="'真的要删除连接 [' + deleteKafkaName + '] ?'" 
+        text="This kafka connectin will be delete, and lost all configs in this connection."
+        :title="'Really delete connectin [' + deleteKafkaName + '] ?'" 
       >
         <template v-slot:prepend>
           <v-icon color="red" icon="mdi-alert"></v-icon>
@@ -132,7 +132,7 @@ const headers: Array<object> = [
   { title: 'Brokers', align: 'start', sortable: true, key: 'brokers' },
   { title: 'SASL Mechanism', align: 'start', sortable: true, key: 'sasl_mechanism' },
   { title: 'User', align: 'start', sortable: true, key: 'user' },
-  { title: 'Timeout', align: 'start', sortable: true, key: 'timeout' },
+  // { title: 'Timeout', align: 'start', sortable: true, key: 'timeout' },
   { title: 'Operation', key: 'actions', align: 'end', sortable: false },
 ];
 
@@ -147,8 +147,8 @@ let snackcolor = 'deep-purple-darken-4';
 let selectedKafkaName = ref('');
 let deleteKafkaName = ref('');
 let newKafkaName = ref('');
-let dupName = ref('空配置'); // when add conn config, as config template
-let tplNames = ref(['空配置']); // when add conn config, as config template list
+let dupName = ref('empty config'); // when add conn config, as config template
+let tplNames = ref(['empty config']); // when add conn config, as config template list
 
 
 const addClick = () => {

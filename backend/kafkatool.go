@@ -53,13 +53,13 @@ func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
 	}
 
 	p.dialer = &kafka.Dialer{
-		Timeout:       10 * time.Second,
+		Timeout:       time.Duration(kafkaConfig.Timeout) * time.Second,
 		DualStack:     true,
 		SASLMechanism: p.mechanism,
 	}
 
 	p.sharedTransport = &kafka.Transport{
-		DialTimeout: 10 * time.Second,
+		DialTimeout: time.Duration(kafkaConfig.Timeout) * time.Second,
 		IdleTimeout: 600 * time.Second,
 		SASL:        p.mechanism,
 	}
@@ -285,22 +285,22 @@ func (p *KafkaTool) SetConfig(resourceType, resourceName, configName, configValu
 }
 
 // static functions
-func TestKafa(KafkaConfig *KafkaConfig) (*Broker, error) {
+func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 	var mechanism sasl.Mechanism = nil
-	if KafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
+	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
 		mechanism = &plain.Mechanism{
-			Username: KafkaConfig.User,
-			Password: KafkaConfig.Password,
+			Username: kafkaConfig.User,
+			Password: kafkaConfig.Password,
 		}
 	}
 
 	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
+		Timeout:       time.Duration(kafkaConfig.Timeout) * time.Second,
 		DualStack:     true,
 		SASLMechanism: mechanism,
 	}
 
-	conn, err := dialer.DialContext(context.Background(), "tcp", KafkaConfig.Brokers[0])
+	conn, err := dialer.DialContext(context.Background(), "tcp", kafkaConfig.Brokers[0])
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,11 @@
 
 
 
+## Version 0.0.8    2025-11-20
+
+Supoort multi kafka connection, orig just only one.
+
+
 ## Version 0.0.7    2025-09-15
 
 Add kcat tool info.

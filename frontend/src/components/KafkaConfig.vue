@@ -51,6 +51,15 @@
             </v-col>
         </v-row>
 
+        <v-row dense class="d-flex align-center">
+            <v-col cols="4" md="4" sm="4">Timeout:</v-col>
+            <v-col cols="4" md="4" sm="4">
+                <v-text-field density="compact"
+                  bg-color="lime-lighten-4" prepend-inner-icon="mdi-clock-time-five"
+                  label="Timeout" v-model="newKafkaConfig.timeout"></v-text-field>
+            </v-col>
+        </v-row>
+
         <small class="text-caption text-medium-emphasis">*indicates required field</small>
       </v-card-text>
 
@@ -124,6 +133,16 @@ const valid = () => {
         const brokers = tmp.split(',');
         newKafkaConfig.value.brokers = brokers;
     }
+    // 由于编辑框会把 number 变成 string，所以需要转换一下
+    if (typeof newKafkaConfig.value.timeout == 'string') {
+        let tmp = newKafkaConfig.value.timeout as string;
+        tmp = tmp.trim();
+        if (tmp.length == 0 || isNaN(Number(tmp)) ) {
+            showSnackBar('Error: timeout must be numeric!', false);
+            return;
+        }
+        newKafkaConfig.value.timeout = parseInt(tmp);
+    }
     return true
 }
 
@@ -131,10 +150,10 @@ const save = () => {
     if (!valid()) return;
 
     UpdateKafkaConfig(newKafkaConfig.value).then(() => {
-        showSnackBar('保存连接配置成功', true);
+        showSnackBar('Save config success', true);
         globalUpdateKafkaConfig(newKafkaConfig.value);
     }).catch((err: string) => {
-        showSnackBar('保存连接配置失败: '+ err, false);
+        showSnackBar('Save config failed: '+ err, false);
     });
 }
 

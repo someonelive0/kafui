@@ -15,6 +15,13 @@ export const globalTopicNames = ref<string[]>([]);
 export const globalGroupNames = ref<string[]>([]);
 
 
+export function globalResetKafkaDatas() {
+  globalBrokerNames.value = [];
+  globalBrokers.value = [];
+  globalTopicNames.value = [];
+  globalGroupNames.value = []
+}
+
 export function globalSetBrokers(brokers: backend.Broker[]) {
   let tmparray = brokers.map(broker => {
     return broker.host+broker.port;

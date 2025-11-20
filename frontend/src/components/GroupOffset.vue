@@ -96,8 +96,8 @@
 
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from 'vue';
-import { backend } from '../wailsjs/go/models';
 import { GetGroupOffset, SetGroupOffset } from "../wailsjs/go/backend/KafkaTool";
+import { backend } from '../wailsjs/go/models';
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
@@ -174,12 +174,12 @@ const save = () => {
   }
 
   SetGroupOffset(name, formModel.value.topic, formModel.value.partition, formModel.value.committed_offset).then(() => {
-    showSnackBar('set group offset ' + name + ' success!', true);
+    showSnackBar('set group offset "' + name + '" success!', true);
     dialog.value = false
     refresh();
   }).catch((err: string) => {
     // console.error('Kafkatool.SetGroupOffset ', err);
-    showSnackBar('set group offset ' + name + ' failed: ' + err, false);
+    showSnackBar('set group offset "' + name + '" failed: ' + err, false);
   });
 }
 

@@ -19,7 +19,7 @@
         </v-list-item>
       </v-list>
 
-      <v-divider></v-divider>
+      <!-- <v-divider></v-divider> -->
 
       <v-toolbar flat density="compact" height="50"
         rounded="shaped" border
@@ -183,7 +183,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import About from './components/About.vue';
 import { globalKafkaConfigNames, globalSetKafkaConfigs } from "./datas/global";
-import { globalBrokers, globalGroupNames, globalSetBrokers, globalTopicNames } from "./datas/kafka";
+import { globalBrokers, globalGroupNames, globalResetKafkaDatas, globalSetBrokers, globalTopicNames } from "./datas/kafka";
 import { GetKafkaConfig, GetKafkaConfigs } from "./wailsjs/go/backend/ConfigService";
 import { Init, ListBrokers, ListGroups, ListTopics } from "./wailsjs/go/backend/KafkaTool";
 import { backend } from "./wailsjs/go/models";
@@ -216,6 +216,8 @@ const connect = () => {
     showSnackBar('Please select kafka connection name', false);
     return;
   }
+  globalResetKafkaDatas();
+
   GetKafkaConfig(currentKafkaName.value).then((kafkaconfig: backend.KafkaConfig) => {
     // console.log('ConfigService.GetKafkaConfig', kafkaconfig);
     connection_name.value = kafkaconfig.name;
@@ -249,13 +251,13 @@ const getMyconfig = () => {
 
 const getBrokers = () => {
   ListBrokers().then((items: backend.Broker[]) => {
-    console.log('Kafkatool.ListBrokers ', items);
+    // console.log('Kafkatool.ListBrokers ', items);
     globalSetBrokers(items);
     kafkaConnected = 1;
     iconColor = "blue-darken-2";
     showSnackBar('get brokers success!', true);
   }).catch((err: string) => {
-    console.error('Kafkatool.ListBrokers ', err);
+    // console.error('Kafkatool.ListBrokers ', err);
     showSnackBar('get brokers failed: ' + err, false);
     kafkaConnected = 0;
     iconColor = "grey";
@@ -264,20 +266,20 @@ const getBrokers = () => {
 
 const getTopics = () => {
   ListTopics().then((items: Array<string>) => {
-    console.log('KafkaTool.ListTopics ', items);
+    // console.log('KafkaTool.ListTopics ', items);
     globalTopicNames.value = items;
   }).catch((err: string) => {
-    console.error('KafkaTool.ListTopics', err);
+    // console.error('KafkaTool.ListTopics', err);
     showSnackBar('get topics failed: ' + err, false);
   });
 }
 
 const getGroups = () => {
   ListGroups().then((items: Array<string>) => {
-    console.log('KafkaTool.ListGroups ', items);
+    // console.log('KafkaTool.ListGroups ', items);
     globalGroupNames.value = items;
   }).catch((err: string) => {
-    console.error('KafkaTool.ListGroups', err);
+    // console.error('KafkaTool.ListGroups', err);
     showSnackBar('get groups failed: ' + err, false);
   });
 }
@@ -344,7 +346,7 @@ list-item__prepend>.v-icon~.v-list-item__spacer, .v-list-item__prepend>.v-toolti
 
 /* change connection color by myself */
 .active-connection {
-  background-color:hwb(200 80% 0%) !important;
+  background-color:hwb(180 52% 15%) !important;
   /* Change this to the color you want */
   color: #110000 !important;
   /* Change the text color to match the background color */

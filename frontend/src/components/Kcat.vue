@@ -33,7 +33,8 @@
       <div class="text-h5"> High-level balanced KafkaConsumer </div>
       <div class="text-caption pa-2 border-t">
         <div class="opacity-70">subscribe to topic1 and topic2 (requires broker >=0.9.0 and librdkafka version >=0.9.1)</div>
-      <div class="font-weight-medium">$ kcat -b mybroker -G mygroup -o beginning topic1 topic2</div>
+        <div class="font-weight-medium">$ kcat -b mybroker -G mygroup -o beginning topic1 topic2</div>
+        <div class="font-weight-medium">$ kcat -b mybroker -G mygroup topic1 topic2</div>
       </div>
 
       <div class="text-h5"> Read message </div>

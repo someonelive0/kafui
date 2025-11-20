@@ -178,15 +178,13 @@ func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, new_offse
 		Topics:  []string{topic},
 	})
 	if err != nil {
-		// fmt.Printf("error creating consumer group: %+v\n", err)
-		return err
+		return fmt.Errorf("creating consumer group failed: %v", err)
 	}
 	defer consumergroup.Close()
 
 	gen, err := consumergroup.Next(context.TODO())
 	if err != nil {
-		// fmt.Printf("error getting next generation: %+v\n", err)
-		return err
+		return fmt.Errorf("error getting next generation: %v\n", err)
 	}
 
 	// assignments is empty.
@@ -202,8 +200,7 @@ func (p *KafkaTool) SetGroupOffset(group, topic string, partition int, new_offse
 		},
 	})
 	if err != nil {
-		// fmt.Printf("error committing offsets next generation: %+v\n", err)
-		return err
+		return fmt.Errorf("committing offsets next generation faled: %v\n", err)
 	}
 
 	return nil

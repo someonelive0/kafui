@@ -41,7 +41,7 @@ func NewKafkaConfig() *KafkaConfig {
 		SaslMechanism: "",
 		User:          "",
 		Password:      "",
-		Timeout:       10,
+		Timeout:       DEFAULT_TIMEOUT,
 	}
 }
 
@@ -76,6 +76,10 @@ func LoadConfig(filename string) (*MyConfig, error) {
 				return nil, err
 			}
 			myconfig.KafkaConfigs[i].Password = string(b)
+		}
+
+		if myconfig.KafkaConfigs[i].Timeout <= 0 {
+			myconfig.KafkaConfigs[i].Timeout = DEFAULT_TIMEOUT
 		}
 	}
 
@@ -137,6 +141,7 @@ func (p *MyConfig) Dump() []byte {
 
 const (
 	DEFAULT_CONFIG_FILE  = "kafui.toml"
+	DEFAULT_TIMEOUT      = 10
 	PASSWORD_PREFIX      = "BASE64$"
 	CONFIG_FILE_TEMPLATE = `
 # Kafui config file template
