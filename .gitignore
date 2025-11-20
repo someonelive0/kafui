@@ -44,3 +44,5 @@ kafcli.hist
 *.toml
 log/
 kafui.log
+build/bin/kafui.zip
+build/bin/kafui.toml.bak

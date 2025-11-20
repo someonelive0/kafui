@@ -33,6 +33,8 @@ npm run build
 # build app
 wails build
 wails build --tags exp_gowebview2loader
+wails build -nsis
+# wails build -upx
 ```
 
 kafui.exe will found in build/bin
