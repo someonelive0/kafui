@@ -186,15 +186,11 @@ const deleteConn = () => {
 const valid = () => {
   newKafkaName.value = newKafkaName.value.trim()
   if (newKafkaName.value.length == 0) {
-    snackbar.value = false;
-    snacktext = '连接名称不能为空';
-    snackcolor = 'deep-orange-darken-3';
-    snackbar.value = true;
+    showSnackBar('Kafka connection name is empty, set it', false);
     return false;
   }
   // if (isNaN(Number(partitions.value)) || isNaN(Number(replicas.value))) {
-  //   snacktext = 'partitions or replicas is not number';
-  //   snackbar.value = true;
+  //   showSnackBar('partitions or replicas is not number', false);
   //   return false;
   // }
 

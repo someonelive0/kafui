@@ -146,7 +146,7 @@
     </v-dialog>
   </v-card>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
       <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
@@ -160,6 +160,7 @@ import { defineProps, onMounted, reactive, ref } from "vue";
 import JsonViewer from 'vue-json-viewer';
 import { ExportMsgs } from "../wailsjs/go/main/App";
 import { backend } from "../wailsjs/go/models";
+import { ReadMsgsLimit, WriteMsg } from "../wailsjs/go/backend/KafkaTool";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
@@ -173,6 +174,7 @@ let msgkey = ref('');
 let msgvalue = ref('');
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 let jsonData = ref('');
 let selectedPartition = ref(0);
 let selectedOffset = ref(0);
@@ -204,17 +206,13 @@ const refresh = () => {
   loading.value = true; // why not work?
 
   // -1 means partition, 3 means timeout, limit means records limit
-  window.go.backend.KafkaTool.ReadMsgsLimit(name, 
-      parseInt(partition.value), parseInt(limit.value), 8)
+  ReadMsgsLimit(name, parseInt(partition.value), parseInt(limit.value), 8)
   .then((items: Array<backend.Message>) => {
     // console.log('Kafkatool.ReadMsgs ', items);
     msgs = items;
     loading.value = false;
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.ReadMsgs ', err);
-    snacktext = 'read message failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('read message failed: ' + err, false);
     loading.value = false;
   });
 }
@@ -228,21 +226,17 @@ const writeMsg = () => {
   msgkey.value = msgkey.value.trim();
   msgvalue.value = msgvalue.value.trim();
   if (msgvalue.value.length == 0) {
-    snacktext = 'message value can not be empty!'
-    snackbar.value = true;
+    showSnackBar('message value can not be empty!', false);
     return;
   }
 
-  window.go.backend.KafkaTool.WriteMsg(name, msgkey.value, msgvalue.value).then(() => {
-    snacktext = 'write message success!';
-    snackbar.value = true;
+  WriteMsg(name, msgkey.value, msgvalue.value).then(() => {
+    showSnackBar('write message success!', true);
     newMsgDialog.value = false;
     refresh();
-  })
-  .catch((err: string) => {
+  }).catch((err: string) => {
     // console.error('Kafkatool.WriteMsg ', err);
-    snacktext = 'write message failed: ' + err;
-    snackbar.value = true;
+    showSnackBar('write message failed: ' + err, false);
   });
 }
 
@@ -263,29 +257,24 @@ const rowClicked = (row: backend.Message) => {
 const copyToClipboard = () => {
   const text = JSON.stringify(jsonData.value);
   navigator.clipboard.writeText(text).then(() => {
-    // console.log('Text copied to clipboard');
+    showSnackBar('Message copied to clipboard!', true);
   }).catch(err => {
-    console.error('Failed to copy: ', err);
+    showSnackBar('Failed to copy: ' + err, false);
   });
 }
 
 const resendMsg = () => {
   if (selectedValue.length == 0) {
-    snacktext = 'resend message is empty';
-    snackbar.value = true;
+    showSnackBar('resend message is empty', false);
     return;
   }
 
-  window.go.backend.KafkaTool.WriteMsg(name, selectedKey, selectedValue).then(() => {
-    snacktext = 'resend message success!';
-    snackbar.value = true;
+  WriteMsg(name, selectedKey, selectedValue).then(() => {
+    showSnackBar('resend message success!', true);
     newMsgDialog.value = false;
     refresh();
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.WriteMsg ', err);
-    snacktext = 'resend message failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('resend message failed: ' + err, false);
   });
 }
 
@@ -300,8 +289,7 @@ const getRowClass = (row: backend.Message) => {
 const exportMsgs = () => {
   console.log('exportMsgs: ' + msgs.length);
   if (msgs.length ===0) {
-    snacktext = 'export messages is empty, export nothing!';
-    snackbar.value = true;
+    showSnackBar('export messages is empty, export nothing!', false);
     return;
   }
 
@@ -312,16 +300,18 @@ const exportMsgs = () => {
   }
 
   ExportMsgs(name, text).then(() => {
-    snacktext = 'export messages to file success!';
-    snackbar.value = true;
-  })
-  .catch((err: string) => {
-    // console.error('App.ExportMsgs ', err);
-    snacktext = 'export messages to file failed: ' + err;
-    snackbar.value = true;
+    showSnackBar('export messages to file success!', true);
+  }).catch((err: string) => {
+    showSnackBar('export messages to file failed: ' + err, false);
   });
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>
 
 <style scoped>

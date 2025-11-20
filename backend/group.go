@@ -71,7 +71,7 @@ kafka-go v0.4.48 Now work fine, return
  "Members": null
 }
 */
-func (p *KafkaTool) GetGroupDesc(group string) ([]byte, error) {
+func (p *KafkaTool) GetGroupDesc(group string) (string, error) {
 	client := &kafka.Client{
 		Addr:      kafka.TCP(p.KafkaConfig.Brokers[0]),
 		Transport: p.sharedTransport,
@@ -86,17 +86,17 @@ func (p *KafkaTool) GetGroupDesc(group string) ([]byte, error) {
 		if p.Appctx != nil {
 			runtime.LogErrorf(*p.Appctx, "DescribeGroups error: %s", err)
 		}
-		return nil, err
+		return "", err
 	}
 	if len(resp.Groups) == 0 {
-		return nil, fmt.Errorf("not found group '%s'", group)
+		return "", fmt.Errorf("not found group '%s'", group)
 	}
+
 	b, _ := json.MarshalIndent(resp.Groups[0], "", " ")
 	if p.Appctx != nil {
 		runtime.LogInfof(*p.Appctx, "DescribeGroups '%s': %s\n", group, b)
 	}
-
-	return b, nil
+	return string(b), nil
 }
 
 func (p *KafkaTool) GetGroupOffset(group string) ([]GroupOffset, error) {

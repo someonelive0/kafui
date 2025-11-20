@@ -9,11 +9,11 @@
     >
 
       <v-list density="compact" style="padding: 0px;">
-        <v-list-item @click="refresh" :title="connection_name" :subtitle="connection_addr"
+        <v-list-item @click="connect()" :title="connection_name" :subtitle="connection_addr"
           :class="{ 'active-connection': kafkaConnected === 1 }">
           <template v-slot:prepend>
             <v-avatar :color="iconColor">
-              <v-icon color="white">mdi-apache-kafka</v-icon>
+              <v-icon color="white">mdi-connection</v-icon>
             </v-avatar>
           </template>
         </v-list-item>
@@ -24,10 +24,10 @@
       <v-toolbar flat density="compact" height="50"
         rounded="shaped" border
         color="grey-lighten-1" class="pl-4 ma-0">
-        <v-tooltip text="Connect" location="bottom">
+        <v-tooltip text="Refresh" location="bottom">
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" density="compact" size="small" icon="mdi-connection"
-              @click="connect()"></v-btn>
+            <v-btn v-bind="props" density="compact" size="small" icon="mdi-apache-kafka"
+              @click="refresh()"></v-btn>
           </template>
         </v-tooltip>
         <!-- <v-tooltip text="导出" location="bottom">
@@ -220,15 +220,21 @@ const connect = () => {
     // console.log('ConfigService.GetKafkaConfig', kafkaconfig);
     connection_name.value = kafkaconfig.name;
     connection_addr.value = kafkaconfig.brokers.join();
-    Init(kafkaconfig); // 这里重新配置kafkatool的连接信息
+
+    // 这里重新配置kafkatool的连接信息
+    Init(kafkaconfig).then(() => {
+      getBrokers();
+      getTopics();
+      getGroups();
+      gotoRoute('Dashboard');
+    }).catch((err: string) => {
+      showSnackBar('Kafkatool.Init failed: '+ err, false);
+      return;
+    });
   }).catch((err: string) => {
     showSnackBar('ConfigService.GetKafkaConfig failed: '+ err, false);
     return;
-  })
-  getBrokers();
-  getTopics();
-  getGroups();
-  gotoRoute('Dashboard');
+  });
 }
 
 const getMyconfig = () => {

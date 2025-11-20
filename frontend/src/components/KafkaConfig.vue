@@ -103,9 +103,7 @@ onMounted(() => {
         oldKafkaConfig = JSON.parse(JSON.stringify(kafkaconfig)); // deep copy old conn config
         newKafkaConfig.value = kafkaconfig;
     }).catch((err: string) => {
-        console.error('ConfigService.GetKafkaConfig', err);
-        snacktext = 'ConfigService.GetKafkaConfig faile: '+ err;
-        snackbar.value = true;
+        showSnackBar('ConfigService.GetKafkaConfig faile: '+ err, false);
     });
 });
 

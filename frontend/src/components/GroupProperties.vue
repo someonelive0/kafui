@@ -44,22 +44,27 @@
     </v-card-actions>
   </v-card>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-4" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
-      <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
+      <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
     </template>
   </v-snackbar>
 
 </template>
 
+
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from "vue";
+import { GetGroupDesc, DeleteGroup } from "../wailsjs/go/backend/KafkaTool";
+
 
 const { name } = defineProps(['name']) // 可以简写 解构
 let dialog = ref(false);
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
+
 let groupdesc = ref({
   "Error": null,
   "GroupID": "",
@@ -74,16 +79,10 @@ onMounted(() => {
 
 const refresh = () => {
 
-  window.go.backend.KafkaTool.GetGroupDesc(name).then((desc: Uint8Array) => {
+  GetGroupDesc(name).then((desc: string) => {
     // console.log('Kafkatool.GetGroupDesc ', desc);
-    // desc return []byte, need use base64.decode(window.atob) to decode it
-    // console.log('Kafkatool.GetGroupDesc ', window.atob(desc));
-    if (desc != null) {
-      // let descobj = JSON.parse(window.atob(desc));
-      groupdesc.value = JSON.parse(window.atob(desc));
-    }
-  })
-  .catch((err: string) => {
+    groupdesc.value = JSON.parse(desc);
+  }).catch((err: string) => {
     console.error('Kafkatool.GetGroupDesc failed: ', err);
     groupdesc.value.GroupState = "BUSY";
   });
@@ -91,17 +90,19 @@ const refresh = () => {
 
 const deleteGroup = () => {
   console.log('deleteGroup ', name);
-  window.go.backend.KafkaTool.DeleteGroup(name).then(() => {
-    snacktext = 'delete group ' + name + ' success!';
-    snackbar.value = true;
+  DeleteGroup(name).then(() => {
+    showSnackBar('delete group ' + name + ' success!', true);
     dialog.value = false;
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.WriteMsg ', err);
-    snacktext = 'delete group ' + name + ' failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('delete group ' + name + ' failed: ' + err, false);
   });
   
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>

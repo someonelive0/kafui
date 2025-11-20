@@ -84,10 +84,10 @@
     </v-dialog>
   </v-card>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
-      <v-btn color="grey" variant="text" @click="snackbar = false" >Close</v-btn>
+      <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
     </template>
   </v-snackbar>
 
@@ -97,22 +97,23 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from 'vue';
 import { backend } from '../wailsjs/go/models';
+import { GetGroupOffset, SetGroupOffset } from "../wailsjs/go/backend/KafkaTool";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
 const rules = {
-  required: value => !!value || 'Field is required',
+  required: (value: string) => !!value || 'Field is required',
   numeric: (value: string) => (value && !isNaN(Number(formModel.value.committed_offset))) || 'Field must be numeric',
 }
 
 const headers: Array<object> = [
-      { title: 'Topic', align: 'start', sortable: true, key: 'topic' },
-      { title: 'Partition', align: 'end', key: 'partition' },
-      { title: 'First Offset', align: 'end', key: 'first_offset' },
-      { title: 'Last Offset', align: 'end', key: 'last_offset' },
-      { title: 'Committed Offset', align: 'end', key: 'committed_offset' },
-      { title: 'Actions', align: 'end', key: 'actions' },
-    ];
+  { title: 'Topic', align: 'start', sortable: true, key: 'topic' },
+  { title: 'Partition', align: 'end', key: 'partition' },
+  { title: 'First Offset', align: 'end', key: 'first_offset' },
+  { title: 'Last Offset', align: 'end', key: 'last_offset' },
+  { title: 'Committed Offset', align: 'end', key: 'committed_offset' },
+  { title: 'Actions', align: 'end', key: 'actions' },
+];
 
 let offsets: Array<backend.GroupOffset> = reactive([]);
 let loading = ref(true);
@@ -120,9 +121,10 @@ let search = ref('');
 const sortBy = [{ key: 'config_name', order: 'asc' }];
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 
 // for edit group offset
-const formModel = ref([])
+const formModel = ref<backend.GroupOffset>(new backend.GroupOffset);
 const dialog = shallowRef(false)
 const isEditing = toRef(() => !!formModel.value.topic)
 
@@ -134,20 +136,20 @@ onMounted(() => {
 const refresh = () => {
   loading.value = true; // why not work?
 
-  window.go.backend.KafkaTool.GetGroupOffset(name).then((items: Array<backend.GroupOffset>) => {
+  GetGroupOffset(name).then((items: Array<backend.GroupOffset>) => {
     // console.log('Kafkatool.GetGroupOffset ', items);
     if (items != null) {
       offsets = items;
     }
     loading.value = false;
-  })
-  .catch((err: string) => {
-    console.error('Kafkatool.GetGroupOffset ', err);
+  }).catch((err: string) => {
+    // console.error('Kafkatool.GetGroupOffset ', err);
+    showSnackBar('Kafkatool.GetGroupOffset failed: '+ err, false);
     loading.value = false;
   });
 }
 
-const edit = (item) => {
+const edit = (item: backend.GroupOffset) => {
   // const found = books.value.find(book => book.id === id)
   // console.log("edit item: " + item.topic);
   formModel.value = item;
@@ -156,34 +158,35 @@ const edit = (item) => {
 
 const save = () => {
   // console.log("save item: " + formModel.value.topic);
-  formModel.value.committed_offset = formModel.value.committed_offset.trim();
-  if (formModel.value.committed_offset.length == 0 || isNaN(Number(formModel.value.committed_offset)) ) {
-    snacktext = 'Error: New Offset must be numeric!';
-    snackbar.value = true;
-    return;
-  }
-  if (parseInt(formModel.value.committed_offset) < parseInt(formModel.value.first_offset)
-    || parseInt(formModel.value.committed_offset) > parseInt(formModel.value.last_offset) ) {
-    snacktext = 'Error: New Offset ' + formModel.value.committed_offset + ' is less than [First Offset] or bigger than [Last Offset]!';
-    snackbar.value = true;
-    return;
+  if (typeof formModel.value.committed_offset == 'string') {
+    let tmp = formModel.value.committed_offset as string;
+    tmp = tmp.trim();
+    if (tmp.length == 0 || isNaN(Number(tmp)) ) {
+      showSnackBar('Error: New Offset must be numeric!', false);
+      return;
+    }
+    if (parseInt(tmp) < formModel.value.first_offset
+      || parseInt(tmp) > formModel.value.last_offset) {
+      showSnackBar('Error: New Offset ' + formModel.value.committed_offset + ' is less than [First Offset] or bigger than [Last Offset]!', false);
+      return;
+    }
+    formModel.value.committed_offset = parseInt(tmp);
   }
 
-  window.go.backend.KafkaTool.SetGroupOffset(name, formModel.value.topic, 
-    formModel.value.partition, 
-    parseInt(formModel.value.committed_offset) ).then(() => {
-    snacktext = 'set group offset ' + name + ' success!';
-    snackbar.value = true;
-
+  SetGroupOffset(name, formModel.value.topic, formModel.value.partition, formModel.value.committed_offset).then(() => {
+    showSnackBar('set group offset ' + name + ' success!', true);
     dialog.value = false
     refresh();
-  })
-  .catch((err: string) => {
+  }).catch((err: string) => {
     // console.error('Kafkatool.SetGroupOffset ', err);
-    snacktext = 'set group offset ' + name + ' failed: ' + err;
-    snackbar.value = true;
+    showSnackBar('set group offset ' + name + ' failed: ' + err, false);
   });
-
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>

@@ -82,7 +82,7 @@
     </v-dialog>
   </v-card>
 
-  <v-snackbar v-model="snackbar" timeout=2000 color="deep-purple-darken-3" elevation="24">
+  <v-snackbar v-model="snackbar" timeout=4000 :color="snackcolor" elevation="24">
     {{ snacktext }}
     <template v-slot:actions>
       <v-btn color="grey" variant="text" @click="snackbar = false">Close</v-btn>
@@ -94,6 +94,7 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from "vue";
 import { backend } from "../wailsjs/go/models";
+import { GetTopicConfig, GetBrokerConfig, GetClusterConfig, SetTopicConfig, SetBrokerConfig, SetClusterConfig } from "../wailsjs/go/backend/KafkaTool";
 
 
 // 调用defineProps方法并获取父组件传递的数据
@@ -113,12 +114,17 @@ const headers: Array<object> = [
 let configs: Array<backend.ConfigEntry> = reactive([]);
 let loading = ref(true);
 let search = ref('');
-const sortBy = ref<Object[]>([{ key: 'config_name', order: 'asc' }]);
+const sortBy = ref<Array<{ key: string; order: 'asc' | 'desc' }>>([{ key: 'config_name', order: 'asc' }]);
 let snackbar = ref(false);
 let snacktext = '';
+let snackcolor = 'deep-purple-darken-4';
 
 // for edit group offset
-const formModel = ref([])
+const formModel = ref<{topic: string; config_name: string; config_value: string}>({
+  topic: '',
+  config_name: '',
+  config_value: '',
+});
 const dialog = shallowRef(false)
 const isEditing = toRef(() => !!formModel.value.topic)
 
@@ -131,11 +137,11 @@ const refresh = () => {
   loading.value = true;
   let getConf = null;
   if (title == 'topic') {
-    getConf = window.go.backend.KafkaTool.GetTopicConfig;
+    getConf = GetTopicConfig;
   } else if (title == 'broker') {
-    getConf = window.go.backend.KafkaTool.GetBrokerConfig;
+    getConf = GetBrokerConfig;
   } else if (title == 'cluster') {
-    getConf = window.go.backend.KafkaTool.GetClusterConfig;
+    getConf = GetClusterConfig;
   } else {
     console.error('unknow title ', title);
     return;
@@ -146,19 +152,18 @@ const refresh = () => {
     // console.log('Kafkatool.getConf ', title, items);
     configs = items;
     loading.value = false;
-  })
-  .catch((err: string) => {
-    console.error('Kafkatool.GetTopicConfig ', err);
-    snacktext = 'get configs of ' + name.toString() + ' failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    // console.error('Kafkatool.GetTopicConfig ', err);
+    showSnackBar('get configs of ' + name.toString() + ' failed: ' + err, false);
     loading.value = false;
   });
 }
 
-const edit = (item) => {
+const edit = (item: backend.ConfigEntry) => {
   // const found = books.value.find(book => book.id === id)
   // console.log("edit item: " + item.topic);
-  formModel.value = item;
+  formModel.value.config_name = item.config_name;
+  formModel.value.config_value = item.config_value
   formModel.value.topic = name.toString();
   dialog.value = true
 }
@@ -167,33 +172,28 @@ const save = () => {
   // console.log("save item: " + formModel.value.topic);
   formModel.value.config_value = formModel.value.config_value.trim();
   if (formModel.value.config_value.length == 0) {
-    snacktext = 'Error: New config value can not be empty!';
-    snackbar.value = true;
+    showSnackBar('Error: New config value can not be empty!', false);
     return;
   }
 
   let setConf = null;
   if (title == 'topic') {
-    setConf = window.go.backend.KafkaTool.SetTopicConfig;
+    setConf = SetTopicConfig;
   } else if (title == 'broker') {
-    setConf = window.go.backend.KafkaTool.SetBrokerConfig;
+    setConf = SetBrokerConfig;
   } else if (title == 'cluster') {
-    setConf = window.go.backend.KafkaTool.SetClusterConfig;
+    setConf = SetClusterConfig;
   } else {
     console.error('unknow title ', title);
     return;
   }
 
   setConf(formModel.value.topic, formModel.value.config_name, formModel.value.config_value ).then(() => {
-    snacktext = 'set config ' + name + ' success!';
-    snackbar.value = true;
+    showSnackBar('set config ' + name + ' success!', true);
     dialog.value = false
     refresh();
-  })
-  .catch((err: string) => {
-    // console.error('Kafkatool.setConf ', err);
-    snacktext = 'set config ' + name + ' failed: ' + err;
-    snackbar.value = true;
+  }).catch((err: string) => {
+    showSnackBar('set config ' + name + ' failed: ' + err, false);
   });
 
 }
@@ -213,6 +213,12 @@ const getRowClass = (row: backend.ConfigEntry) => {
   return '';
 }
 
+const showSnackBar = (text: string, success: boolean) => {
+    snackbar.value = false;
+    snacktext = text;
+    snackcolor = success ? 'deep-purple-darken-4' : 'deep-orange-darken-3';
+    snackbar.value = true;
+}
 </script>
 
 <style>

@@ -32,7 +32,7 @@ func NewKafkaTool(KafkaConfig *KafkaConfig) *KafkaTool {
 }
 
 func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
-	fmt.Printf("Init %#v\n", kafkaConfig)
+	// fmt.Printf("Init %#v\n", kafkaConfig)
 	p.KafkaConfig = kafkaConfig
 	if p.Appctx != nil {
 		runtime.LogInfof(*p.Appctx, "set kafka config SaslMechanism: %#v", p.KafkaConfig.SaslMechanism)
