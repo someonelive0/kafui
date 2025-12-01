@@ -13,7 +13,9 @@
         single-line
         density="compact"
         clearable
-      ><v-tooltip activator="parent" location="bottom">Filter keyword</v-tooltip>
+      ><v-tooltip activator="parent" location="bottom">
+        Filter keyword
+      </v-tooltip>
       </v-text-field>&nbsp;
       <v-text-field
         v-model="partition"
@@ -23,7 +25,10 @@
         hide-details
         single-line
         density="compact"
-      ><v-tooltip activator="parent" location="bottom">Partition: 0, 1, 2...</v-tooltip>
+        @keyup.enter="handleEnterKey"
+      ><v-tooltip activator="parent" location="bottom">
+        Partition: 0, 1, 2...
+      </v-tooltip>
       </v-text-field>&nbsp;
       <v-text-field
         v-model="limit"
@@ -33,21 +38,27 @@
         hide-details
         single-line
         density="compact"
-      ><v-tooltip activator="parent" location="bottom">Limit messages, 0 means no limit, -100 means last 100</v-tooltip>
+        @keyup.enter="handleEnterKey"
+      ><v-tooltip activator="parent" location="bottom">
+        Limit messages, 0 means no limit, -100 means last 100
+      </v-tooltip>
       </v-text-field>&nbsp;
       <v-tooltip text="Refresh" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-refresh" size="small" @click="refresh"></v-btn>&nbsp;
+          <v-btn v-bind="props" icon="mdi-refresh" size="small" @click="refresh">
+          </v-btn>&nbsp;
         </template>
       </v-tooltip>
       <v-tooltip text="Write message to topic" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-plus" size="small" @click="showNewMsgDialog"></v-btn>&nbsp;
+          <v-btn v-bind="props" icon="mdi-plus" size="small" @click="showNewMsgDialog">
+          </v-btn>&nbsp;
         </template>
       </v-tooltip>
       <v-tooltip text="Export follow messages to file" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-download" size="small" @click="exportMsgs"></v-btn>
+          <v-btn v-bind="props" icon="mdi-download" size="small" @click="exportMsgs">
+          </v-btn>
         </template>
       </v-tooltip>
     </v-card-title>
@@ -158,9 +169,9 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref } from "vue";
 import JsonViewer from 'vue-json-viewer';
+import { ReadMsgsLimit, WriteMsg } from "../wailsjs/go/backend/KafkaTool";
 import { ExportMsgs } from "../wailsjs/go/main/App";
 import { backend } from "../wailsjs/go/models";
-import { ReadMsgsLimit, WriteMsg } from "../wailsjs/go/backend/KafkaTool";
 
 
 const { name } = defineProps(['name']) // 可以简写 解构
@@ -215,6 +226,11 @@ const refresh = () => {
     showSnackBar('read message failed: ' + err, false);
     loading.value = false;
   });
+}
+
+const handleEnterKey = () => {
+  // console.log('Enter key pressed! limit Value:', limit.value);
+  refresh();
 }
 
 const showNewMsgDialog = () => {

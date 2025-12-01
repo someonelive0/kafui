@@ -13,7 +13,9 @@
         single-line
         density="compact"
         clearable
-        ><v-tooltip activator="parent" location="bottom">Filter by keyword</v-tooltip>
+        ><v-tooltip activator="parent" location="bottom">
+          Filter by keyword
+        </v-tooltip>
       </v-text-field>&nbsp;
       <v-btn icon="mdi-refresh" size="small" @click="refresh"></v-btn>
     </v-card-title>
@@ -38,7 +40,8 @@
         <td>{{ item.is_default }}</td>
         <td>{{ item.is_sensitive }}</td>
         <td class="d-flex ga-2 justify-end">
-          <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="edit(item)"></v-icon>
+          <v-icon color="medium-emphasis" icon="mdi-pencil" size="small"
+            @click="edit(item)"></v-icon>
         </td>
       </tr>
     </template>
@@ -55,15 +58,19 @@
         <template v-slot:text>
           <v-row>
             <v-col cols="6">
-              <v-text-field v-model="formModel.topic" label="Object" color="black" disabled></v-text-field>
+              <v-text-field v-model="formModel.topic" label="Object" color="black" disabled>
+              </v-text-field>
             </v-col>
 
             <v-col cols="6" md="6">
-              <v-text-field v-model="formModel.config_name" label="Config Name" disabled></v-text-field>
+              <v-text-field v-model="formModel.config_name" label="Config Name" disabled>
+              </v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <v-text-field v-model="formModel.config_value" label="Config Value" variant="outlined"></v-text-field>
+              <v-text-field v-model="formModel.config_value" label="Config Value" 
+                variant="outlined" @keyup.enter="handleEnterKey">
+              </v-text-field>
             </v-col>
 
           </v-row>
@@ -93,8 +100,8 @@
 
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref, shallowRef, toRef } from "vue";
+import { GetBrokerConfig, GetClusterConfig, GetTopicConfig, SetBrokerConfig, SetClusterConfig, SetTopicConfig } from "../wailsjs/go/backend/KafkaTool";
 import { backend } from "../wailsjs/go/models";
-import { GetTopicConfig, GetBrokerConfig, GetClusterConfig, SetTopicConfig, SetBrokerConfig, SetClusterConfig } from "../wailsjs/go/backend/KafkaTool";
 
 
 // 调用defineProps方法并获取父组件传递的数据
@@ -166,6 +173,10 @@ const edit = (item: backend.ConfigEntry) => {
   formModel.value.config_value = item.config_value
   formModel.value.topic = name.toString();
   dialog.value = true
+}
+
+const handleEnterKey = () => {
+  save();
 }
 
 const save = () => {
