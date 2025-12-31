@@ -68,11 +68,10 @@
       </div>
       <div class="text-caption pa-2 border-t">
         <div class="opacity-70">use config file </div>
-        <div class="font-weight-medium">$ kcat -b mybroker -F kafka.conf </div>
-        <div class="opacity-70">$ cat kafka.conf </div>
+        <div class="font-weight-medium">$ kcat -b mybroker -F kcat.conf </div>
       </div>
       <div class="text-caption pa-2 border-t">
-        <div class="opacity-70">$ cat kafka.conf</div>
+        <div class="opacity-70">$ cat kcat.conf</div>
         <pre class="font-weight-medium">
 
 security.protocol=SASL_PLAINTEXT

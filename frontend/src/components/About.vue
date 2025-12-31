@@ -12,7 +12,7 @@
         KAFUI
       </template>
       <template v-slot:subtitle>
-        Version: 0.0.8 &nbsp; 2025-11-20
+        Version: 0.0.8 &nbsp; 2025-12-31
       </template>
 
       <v-card-text>
