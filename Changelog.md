@@ -2,6 +2,10 @@
 
 
 
+## Version 0.0.9    2026-03-06
+
+kafka sasl_mechanism support PLAIN, SCRAM-SHA-256, SCRAM-SHA-512
+
 ## Version 0.0.8    2025-11-20
 
 Supoort multi kafka connection, orig just only one.

@@ -24,7 +24,7 @@ type MyConfig struct {
 type KafkaConfig struct {
 	Name          string   `toml:"name" json:"name"`
 	Brokers       []string `toml:"brokers" json:"brokers"`               // brokers = [ "localhost:9092" ]
-	SaslMechanism string   `toml:"sasl_mechanism" json:"sasl_mechanism"` // "" or "SASL_PLAINTEXT"
+	SaslMechanism string   `toml:"sasl_mechanism" json:"sasl_mechanism"` // "" or "PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"
 	User          string   `toml:"user" json:"user"`
 	Password      string   `toml:"password" json:"password"`
 	Timeout       int      `toml:"timeout" json:"timeout"`
@@ -154,8 +154,8 @@ license = "Copyright @ 2024"
 [[kafka]]
 	name = "localhost"
 	brokers = [ "127.0.0.1:9092" ]
-	# sasl mechanism should be empty or "SASL_PLAINTEXT",
-	# if mechanism is "SASL_PLAINTEXT", then set user and password
+    # sasl mechanism should be empty or "PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"
+    # if mechanism is "PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512", then set user and password
 	sasl_mechanism = ""
 	user = ""
 	password = ""

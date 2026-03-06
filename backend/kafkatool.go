@@ -10,6 +10,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
 	"github.com/segmentio/kafka-go/sasl/plain"
+	"github.com/segmentio/kafka-go/sasl/scram"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -40,13 +41,10 @@ func (p *KafkaTool) Init(kafkaConfig *KafkaConfig) {
 	}
 
 	// init sasl mechanism
-	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
-		p.mechanism = &plain.Mechanism{
-			Username: kafkaConfig.User,
-			Password: kafkaConfig.Password,
-		}
-	} else {
-		p.mechanism = nil
+	mechanism, err := KafkaMechanism(kafkaConfig.SaslMechanism,
+		kafkaConfig.User, kafkaConfig.Password)
+	if err == nil {
+		p.mechanism = mechanism
 	}
 
 	if p.sharedTransport != nil {
@@ -288,11 +286,10 @@ func (p *KafkaTool) SetConfig(resourceType, resourceName, configName, configValu
 // static functions
 func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 	var mechanism sasl.Mechanism = nil
-	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
-		mechanism = &plain.Mechanism{
-			Username: kafkaConfig.User,
-			Password: kafkaConfig.Password,
-		}
+	mechanism, err := KafkaMechanism(kafkaConfig.SaslMechanism,
+		kafkaConfig.User, kafkaConfig.Password)
+	if err != nil {
+		return nil, err
 	}
 
 	dialer := &kafka.Dialer{
@@ -311,7 +308,6 @@ func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 	if err != nil {
 		return nil, err
 	}
-	// log.Infof("leader: %#v\n", controller)
 	leader := NewBrokerFromSegmentio(&controller)
 
 	return leader, err
@@ -384,11 +380,10 @@ func TestKafa(kafkaConfig *KafkaConfig) (*Broker, error) {
 */
 func ApiVersions(kafkaConfig *KafkaConfig) (string, error) {
 	var mechanism sasl.Mechanism = nil
-	if kafkaConfig.SaslMechanism == "SASL_PLAINTEXT" {
-		mechanism = &plain.Mechanism{
-			Username: kafkaConfig.User,
-			Password: kafkaConfig.Password,
-		}
+	mechanism, err := KafkaMechanism(kafkaConfig.SaslMechanism,
+		kafkaConfig.User, kafkaConfig.Password)
+	if err != nil {
+		return "", err
 	}
 
 	dialer := &kafka.Dialer{
@@ -410,4 +405,34 @@ func ApiVersions(kafkaConfig *KafkaConfig) (string, error) {
 	b, _ := json.Marshal(apiVersions)
 
 	return string(b), err
+}
+
+/*
+ * sasl_protocol: SASL_PLAINTEXT, SASL_SSL, default is SASL_PLAINTEXT
+ * sasl_mechanism: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512
+ */
+func KafkaMechanism(sasl_mechanism, user, password string) (sasl.Mechanism, error) {
+	var mechanism sasl.Mechanism
+
+	switch sasl_mechanism {
+	case "PLAIN": // sasl_mechanism = "PLAIN" is correct
+		mechanism = &plain.Mechanism{
+			Username: user,
+			Password: password,
+		}
+	case "SCRAM-SHA-256":
+		tmp, err := scram.Mechanism(scram.SHA256, user, password)
+		if err != nil {
+			return nil, err
+		}
+		mechanism = tmp
+	case "SCRAM-SHA-512":
+		tmp, err := scram.Mechanism(scram.SHA512, user, password)
+		if err != nil {
+			return nil, err
+		}
+		mechanism = tmp
+	}
+
+	return mechanism, nil
 }

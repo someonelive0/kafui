@@ -73,9 +73,11 @@ Flow is from kafui.toml.tpl, show how kafka config items in toml format file.
 [kafka]
     name = "localhost"
     brokers = [ "127.0.0.1:9092" ]
-    # sasl mechanism should be empty or "SASL_PLAINTEXT",
-    # if mechanism is "SASL_PLAINTEXT", then set user and password
+    # sasl mechanism should be empty or "PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"
+    # if mechanism is "PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512", then set user and password
     sasl_mechanism = ""
     user = ""
     password = ""
+	# timeout for connect and read timeout in seconds, default 10 seconds
+	timeout = 10
 ```

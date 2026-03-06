@@ -25,7 +25,7 @@
             <v-col cols="4" md="4" sm="4">SASL Mechanism:</v-col>
             <v-col cols="8" md="8" sm="8">
                 <v-select 
-                  :items="['None', 'SASL_PLAINTEXT']" required v-model="sasl_mechanism"
+                  :items="['None', 'PLAIN', 'SCRAM-SHA-256', 'SCRAM-SHA-512']" required v-model="sasl_mechanism"
                   persistent-hint hint="None means not use SASL"></v-select>
             </v-col>
         </v-row>

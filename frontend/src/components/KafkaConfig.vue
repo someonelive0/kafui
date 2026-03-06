@@ -28,7 +28,8 @@
             <v-col cols="8" md="8" sm="8">
                 <v-select density="compact" bg-color="yellow-lighten-4"
                   prepend-inner-icon="mdi-check-bold"
-                  :items="['None', 'SASL_PLAINTEXT']" required v-model="newKafkaConfig.sasl_mechanism"
+                  :items="['None', 'PLAIN', 'SCRAM-SHA-256', 'SCRAM-SHA-512']"
+                  required v-model="newKafkaConfig.sasl_mechanism"
                   persistent-hint hint="None means not use SASL"></v-select>
             </v-col>
         </v-row>
@@ -159,7 +160,9 @@ const save = () => {
 }
 
 const test = () => {
+    console.log('newKafkaConfig1: ', newKafkaConfig.value);
     if (!valid()) return;
+    console.log('newKafkaConfig2: ', newKafkaConfig.value);
 
     TestKafkaConfig(newKafkaConfig.value).then((leader: backend.Broker) => {
         showSnackBar('Test connection success! Leader is ' + leader.host + ':' + leader.port, true);
